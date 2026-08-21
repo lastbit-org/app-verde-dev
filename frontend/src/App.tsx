@@ -1,190 +1,171 @@
+import {
+  Button,
+  Card,
+  Checkbox,
+  ChoiceGroup,
+  Eyebrow,
+  Field,
+  Footer,
+  Gallery,
+  Header,
+  Input,
+  Paragraph,
+  Quote,
+  Radio,
+  Section,
+  Select,
+  Textarea,
+  Title,
+} from './components'
+
+const nav = [
+  { href: '#tipografia', label: 'Tipografia' },
+  { href: '#botoes', label: 'Botões' },
+  { href: '#formulario', label: 'Formulário' },
+  { href: '#conteudo', label: 'Conteúdo' },
+  { href: '#galeria', label: 'Galeria' },
+]
+
+const gallery = [1, 2, 3, 4, 5, 6].map((n) => ({
+  src: `https://picsum.photos/200/300?random=${n}`,
+  alt: `Foto ${n}`,
+}))
+
 function App() {
   return (
     <div className="page">
-      <header className="header">
-        <a className="brand" href="#topo">
-          <span className="brand-mark" aria-hidden="true" />
-          Verde
-        </a>
-        <nav className="nav" aria-label="Seções">
-          <a href="#tipografia">Tipografia</a>
-          <a href="#botoes">Botões</a>
-          <a href="#formulario">Formulário</a>
-          <a href="#conteudo">Conteúdo</a>
-          <a href="#galeria">Galeria</a>
-        </nav>
-      </header>
+      <Header brand="Verde" links={nav} />
 
       <main id="topo">
         <section className="hero">
-          <p className="eyebrow">Design guide</p>
-          <h1>Uma interface quieta, em verde.</h1>
-          <p className="lead">
+          <Eyebrow>Design guide</Eyebrow>
+          <Title as="h1">Uma interface quieta, em verde.</Title>
+          <Paragraph variant="lead">
             Referência visual da loja: tipografia, controles e espaçamento. Pouca
             cor, bastante ar e um verde que não grita.
-          </p>
+          </Paragraph>
         </section>
 
-        <section id="tipografia" className="block">
-          <p className="eyebrow">Tipografia</p>
-          <h2>Títulos e texto</h2>
-          <p>
-            Títulos em <strong>Fraunces</strong>, corpo em{' '}
-            <em>Figtree</em>. Parágrafos respiram e o contraste fica no peso, não
-            no volume de cor.
-          </p>
-          <h3>Subtítulo da seção</h3>
-          <p>
+        <Section id="tipografia" eyebrow="Tipografia" title="Títulos e texto">
+          <Paragraph>
+            Títulos em <strong>Fraunces</strong>, corpo em <em>Figtree</em>.
+            Parágrafos respiram e o contraste fica no peso, não no volume de
+            cor.
+          </Paragraph>
+          <Title as="h3">Subtítulo da seção</Title>
+          <Paragraph>
             Use um parágrafo para explicar o produto, a política ou o próximo
-            passo. Links como{' '}
-            <a href="#formulario">este aqui</a> herdam o verde da marca.
-          </p>
-          <h4>Rótulo menor</h4>
-          <p className="muted">
+            passo. Links como <a href="#formulario">este aqui</a> herdam o verde
+            da marca.
+          </Paragraph>
+          <Title as="h4">Rótulo menor</Title>
+          <Paragraph variant="muted">
             Texto auxiliar, legendas e notas. Menor, mais suave, ainda legível.
-          </p>
-        </section>
+          </Paragraph>
+        </Section>
 
-        <section id="botoes" className="block">
-          <p className="eyebrow">Ações</p>
-          <h2>Botões</h2>
-          <p>Uma ação principal por contexto. O restante fica em segundo plano.</p>
+        <Section id="botoes" eyebrow="Ações" title="Botões">
+          <Paragraph>
+            Uma ação principal por contexto. O restante fica em segundo plano.
+          </Paragraph>
           <div className="row">
-            <button type="button" className="btn btn-primary">
-              Adicionar ao carrinho
-            </button>
-            <button type="button" className="btn btn-secondary">
-              Ver detalhes
-            </button>
-            <button type="button" className="btn btn-ghost">
-              Cancelar
-            </button>
-            <button type="button" className="btn btn-primary" disabled>
-              Indisponível
-            </button>
+            <Button>Adicionar ao carrinho</Button>
+            <Button variant="secondary">Ver detalhes</Button>
+            <Button variant="ghost">Cancelar</Button>
+            <Button disabled>Indisponível</Button>
           </div>
-        </section>
+        </Section>
 
-        <section id="formulario" className="block">
-          <p className="eyebrow">Formulário</p>
-          <h2>Campos</h2>
-          <p>Bordas finas, foco visível, labels sempre presentes.</p>
+        <Section id="formulario" eyebrow="Formulário" title="Campos">
+          <Paragraph>Bordas finas, foco visível, labels sempre presentes.</Paragraph>
 
           <form className="form" onSubmit={(event) => event.preventDefault()}>
-            <label className="field">
-              <span>Nome</span>
-              <input type="text" name="name" placeholder="Ana Silva" />
-            </label>
+            <Field label="Nome">
+              <Input type="text" name="name" placeholder="Ana Silva" />
+            </Field>
 
-            <label className="field">
-              <span>E-mail</span>
-              <input type="email" name="email" placeholder="ana@example.com" />
-            </label>
+            <Field label="E-mail">
+              <Input type="email" name="email" placeholder="ana@example.com" />
+            </Field>
 
-            <label className="field">
-              <span>Categoria</span>
-              <select name="category" defaultValue="">
-                <option value="" disabled>
-                  Selecione
-                </option>
-                <option value="plantas">Plantas</option>
-                <option value="vasos">Vasos</option>
-                <option value="cuidados">Cuidados</option>
-              </select>
-            </label>
+            <Field label="Categoria">
+              <Select
+                name="category"
+                defaultValue=""
+                placeholder="Selecione"
+                options={[
+                  { value: 'plantas', label: 'Plantas' },
+                  { value: 'vasos', label: 'Vasos' },
+                  { value: 'cuidados', label: 'Cuidados' },
+                ]}
+              />
+            </Field>
 
-            <label className="field">
-              <span>Mensagem</span>
-              <textarea
+            <Field label="Mensagem">
+              <Textarea
                 name="message"
                 rows={4}
                 placeholder="Conte o que você procura."
               />
-            </label>
+            </Field>
 
-            <fieldset className="choices">
-              <legend>Preferências</legend>
-              <label className="choice">
-                <input type="checkbox" name="newsletter" defaultChecked />
+            <ChoiceGroup legend="Preferências">
+              <Checkbox name="newsletter" defaultChecked>
                 Quero novidades por e-mail
-              </label>
-              <label className="choice">
-                <input type="radio" name="contact" value="email" defaultChecked />
+              </Checkbox>
+              <Radio name="contact" value="email" defaultChecked>
                 Contato por e-mail
-              </label>
-              <label className="choice">
-                <input type="radio" name="contact" value="phone" />
+              </Radio>
+              <Radio name="contact" value="phone">
                 Contato por telefone
-              </label>
-            </fieldset>
+              </Radio>
+            </ChoiceGroup>
 
             <div className="row">
-              <button type="submit" className="btn btn-primary">
-                Enviar
-              </button>
-              <button type="reset" className="btn btn-ghost">
+              <Button type="submit">Enviar</Button>
+              <Button type="reset" variant="ghost">
                 Limpar
-              </button>
+              </Button>
             </div>
           </form>
-        </section>
+        </Section>
 
-        <section id="conteudo" className="block">
-          <p className="eyebrow">Conteúdo</p>
-          <h2>Cards e citação</h2>
-          <p>Blocos simples para produto, aviso ou depoimento. Sem sombra.</p>
+        <Section id="conteudo" eyebrow="Conteúdo" title="Cards e citação">
+          <Paragraph>
+            Blocos simples para produto, aviso ou depoimento. Sem sombra.
+          </Paragraph>
 
-          <article className="card">
-            <p className="badge">Novo</p>
-            <h3>Oliveira em vaso de cerâmica</h3>
-            <p>
-              Folhagem densa, irrigação espaçada. Um objeto quieto para mesa ou
-              recuo da sala.
-            </p>
-            <p className="price">R$ 186</p>
-          </article>
+          <Card
+            badge="Novo"
+            title="Oliveira em vaso de cerâmica"
+            description="Folhagem densa, irrigação espaçada. Um objeto quieto para mesa ou recuo da sala."
+            price="R$ 186"
+          />
 
-          <article className="card card-media">
-            <img
-              src="https://picsum.photos/200/300"
-              alt="Oliveira em vaso, à luz da rua"
-            />
-            <div className="card-body">
-              <p className="badge">Peça única</p>
-              <h3>Oliveira à janela</h3>
-              <p>
-                O mesmo objeto, agora com foto. A imagem ocupa o topo; o texto
-                fica no recuo de sempre.
-              </p>
-              <p className="price">R$ 248</p>
-            </div>
-          </article>
+          <Card
+            badge="Peça única"
+            title="Oliveira à janela"
+            description="O mesmo objeto, agora com foto. A imagem ocupa o topo; o texto fica no recuo de sempre."
+            price="R$ 248"
+            image={{
+              src: 'https://picsum.photos/200/300',
+              alt: 'Oliveira em vaso, à luz da rua',
+            }}
+          />
 
-          <blockquote>
+          <Quote>
             “Menos vitrine, mais cuidado. O verde entra como tom de fundo, não
             como enfeite.”
-          </blockquote>
-        </section>
+          </Quote>
+        </Section>
 
-        <section id="galeria" className="block">
-          <p className="eyebrow">Mídia</p>
-          <h2>Galeria</h2>
-          <p>Grade de imagens para vitrine ou detalhe de produto.</p>
-
-          <div className="gallery">
-            <img src="https://picsum.photos/200/300?random=1" alt="Foto 1" />
-            <img src="https://picsum.photos/200/300?random=2" alt="Foto 2" />
-            <img src="https://picsum.photos/200/300?random=3" alt="Foto 3" />
-            <img src="https://picsum.photos/200/300?random=4" alt="Foto 4" />
-            <img src="https://picsum.photos/200/300?random=5" alt="Foto 5" />
-            <img src="https://picsum.photos/200/300?random=6" alt="Foto 6" />
-          </div>
-        </section>
+        <Section id="galeria" eyebrow="Mídia" title="Galeria">
+          <Paragraph>Grade de imagens para vitrine ou detalhe de produto.</Paragraph>
+          <Gallery images={gallery} />
+        </Section>
       </main>
 
-      <footer className="footer">
-        <p>Verde · entrega inicial</p>
-      </footer>
+      <Footer>Verde · entrega inicial</Footer>
     </div>
   )
 }
