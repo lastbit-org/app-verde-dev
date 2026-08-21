@@ -7,13 +7,14 @@ import {
   Field,
   Footer,
   Gallery,
-  Header,
   Input,
+  MenuBar,
   Paragraph,
   Quote,
   Radio,
   Section,
   Select,
+  Sidebar,
   Textarea,
   Title,
 } from './components'
@@ -21,22 +22,31 @@ import { UsersSection } from './features/users/UsersSection'
 import { AuthSection } from './features/auth/AuthSection'
 import { products } from './data/products'
 
-const nav = [
-  { href: '#tipografia', label: 'Tipografia' },
-  { href: '#botoes', label: 'Botões' },
-  { href: '#formulario', label: 'Formulário' },
-  { href: '#conta', label: 'Conta' },
-  { href: '#conteudo', label: 'Conteúdo' },
+const menu = [
+  { href: '#topo', label: 'Início' },
+  { href: '#conteudo', label: 'Produtos' },
   { href: '#galeria', label: 'Galeria' },
-  { href: '#api', label: 'API' },
+  { href: '#conta', label: 'Conta' },
+]
+
+const shortcuts = [
+  { href: '#topo', label: 'Início', icon: 'home' as const },
+  { href: '#conteudo', label: 'Loja', icon: 'shop' as const },
+  { href: '#galeria', label: 'Fotos', icon: 'images' as const },
+  { href: '#conta', label: 'Conta', icon: 'user' as const },
+  { href: '#api', label: 'API', icon: 'nodes' as const },
 ]
 
 function App() {
   return (
-    <div className="page">
-      <Header brand="Verde" links={nav} />
+    <div className="app">
+      <MenuBar brand="Verde" items={menu} />
 
-      <main id="topo">
+      <div className="shell">
+        <Sidebar items={shortcuts} />
+
+        <div className="page">
+          <main id="topo">
         <section className="hero">
           <Eyebrow>Design guide</Eyebrow>
           <Title as="h1">Uma interface quieta, em verde.</Title>
@@ -163,10 +173,12 @@ function App() {
           <Gallery images={products} />
         </Section>
 
-        <UsersSection />
-      </main>
+          <UsersSection />
+          </main>
 
-      <Footer>Verde · entrega inicial</Footer>
+          <Footer>Verde · entrega inicial</Footer>
+        </div>
+      </div>
     </div>
   )
 }
