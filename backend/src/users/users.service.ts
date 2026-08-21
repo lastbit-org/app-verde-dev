@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import type { CreateUserDto, User } from './user';
 
 @Injectable()
@@ -24,7 +29,27 @@ export class UsersService {
     return user;
   }
 
+  findByEmail(email: string): User {
+    const user = this.users.find(
+      (item) => item.email.toLowerCase() === email.toLowerCase(),
+    );
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return user;
+  }
+
   create(dto: CreateUserDto): User {
+    const taken = this.users.some(
+      (item) => item.email.toLowerCase() === dto.email.toLowerCase(),
+    );
+
+    if (taken) {
+      throw new ConflictException('Email already in use');
+    }
+
     const user: User = {
       id: this.nextId++,
       name: dto.name,

@@ -1,4 +1,8 @@
-import { NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 
 describe('UsersService', () => {
@@ -36,5 +40,21 @@ describe('UsersService', () => {
       email: 'carla@example.com',
     });
     expect(service.findAll()).toHaveLength(3);
+  });
+
+  it('rejects a duplicated email', () => {
+    expect(() =>
+      service.create({ name: 'Ana', email: 'ana@example.com' }),
+    ).toThrow(ConflictException);
+  });
+
+  it('logs in by email', () => {
+    expect(service.findByEmail('ana@example.com').name).toBe('Ana Silva');
+  });
+
+  it('rejects an unknown email', () => {
+    expect(() => service.findByEmail('nina.v@example.com')).toThrow(
+      UnauthorizedException,
+    );
   });
 });

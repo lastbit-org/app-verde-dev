@@ -6,7 +6,7 @@ import {
   ParseIntPipe,
   Post,
 } from '@nestjs/common';
-import type { CreateUserDto, User } from './user';
+import type { CreateUserDto, LoginDto, User } from './user';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -26,5 +26,10 @@ export class UsersController {
   @Post()
   create(@Body() dto: CreateUserDto): User {
     return this.usersService.create(dto);
+  }
+
+  @Post('login')
+  login(@Body() dto: LoginDto): User {
+    return this.usersService.findByEmail(dto.email);
   }
 }

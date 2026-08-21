@@ -18,12 +18,14 @@ import {
   Title,
 } from './components'
 import { UsersSection } from './features/users/UsersSection'
+import { AuthSection } from './features/auth/AuthSection'
 import { products } from './data/products'
 
 const nav = [
   { href: '#tipografia', label: 'Tipografia' },
   { href: '#botoes', label: 'Botões' },
   { href: '#formulario', label: 'Formulário' },
+  { href: '#conta', label: 'Conta' },
   { href: '#conteudo', label: 'Conteúdo' },
   { href: '#galeria', label: 'Galeria' },
   { href: '#api', label: 'API' },
@@ -127,6 +129,8 @@ function App() {
             </div>
           </form>
         </Section>
+
+        <AuthSection />
 
         <Section id="conteudo" eyebrow="Conteúdo" title="Cards e citação">
           <Paragraph>

@@ -8,3 +8,7 @@ export interface CreateUserDto {
   name: string;
   email: string;
 }
+
+export interface LoginDto {
+  email: string;
+}
