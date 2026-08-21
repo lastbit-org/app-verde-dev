@@ -566,6 +566,12 @@ code {
   max-width: none;
 }
 
+.product-aside {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
 .viewer {
   display: grid;
   grid-template-columns: 3.1rem minmax(0, 1fr);
@@ -655,6 +661,79 @@ code {
 .buybox-icon {
   flex-shrink: 0;
   color: var(--leaf);
+}
+
+.product-copy {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.product-copy-price {
+  margin: 0 0 1rem;
+}
+
+.product-copy-details {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1.2rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.product-copy-details div {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 0.75rem;
+}
+
+.product-copy-details dt {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.product-copy-details dd {
+  margin: 0;
+  color: var(--ink);
+}
+
+.payments {
+  margin-top: 0;
+  padding: 1.15rem 1.25rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--paper);
+}
+
+.product-aside .payments h4 {
+  margin-bottom: 0.35rem;
+}
+
+.payments-list {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.payments-list li {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.payments-list strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.payments-list span {
+  color: var(--muted);
+  font-size: 0.92rem;
 }
 
 .footer {
