@@ -6,7 +6,6 @@ import {
   Eyebrow,
   Field,
   Footer,
-  Gallery,
   Input,
   MenuBar,
   Paragraph,
@@ -20,6 +19,7 @@ import {
 } from './components'
 import { UsersSection } from './features/users/UsersSection'
 import { AuthSection } from './features/auth/AuthSection'
+import { ProductsSection } from './features/products/ProductsSection'
 import { products } from './data/products'
 
 const menu = [
@@ -168,10 +168,7 @@ function App() {
           </Quote>
         </Section>
 
-        <Section id="galeria" eyebrow="Mídia" title="Galeria">
-          <Paragraph>Grade de imagens para vitrine ou detalhe de produto.</Paragraph>
-          <Gallery images={products} />
-        </Section>
+        <ProductsSection />
 
           <UsersSection />
           </main>

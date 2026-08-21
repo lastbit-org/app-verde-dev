@@ -74,9 +74,14 @@ export function Sidebar({ items }: SidebarProps) {
     <aside className="sidebar">
       <nav className="sidebar-nav" aria-label="Atalhos">
         {items.map((item) => (
-          <a key={item.href} className="sidebar-item" href={item.href}>
+          <a
+            key={item.href}
+            className="sidebar-item"
+            href={item.href}
+            aria-label={item.label}
+            title={item.label}
+          >
             <Icon name={item.icon} />
-            <span>{item.label}</span>
           </a>
         ))}
       </nav>

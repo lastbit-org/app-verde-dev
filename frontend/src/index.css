@@ -8,8 +8,8 @@
   --leaf-hover: #245a42;
   --moss: #e7f1eb;
   --focus: #3d8b65;
-  --bar-height: 3.5rem;
-  --sidebar-width: 5.5rem;
+  --bar-height: 2.5rem;
+  --sidebar-width: 3.25rem;
 
   --sans: 'Figtree', system-ui, sans-serif;
   --serif: 'Fraunces', Georgia, serif;
@@ -161,7 +161,7 @@ a:hover {
   width: var(--sidebar-width);
   min-width: var(--sidebar-width);
   height: calc(100svh - var(--bar-height));
-  padding: 0.7rem 0.4rem;
+  padding: 0.55rem 0.3rem;
   background: var(--paper);
   border-right: 1px solid var(--line);
 }
@@ -169,18 +169,17 @@ a:hover {
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  align-items: center;
+  gap: 0.2rem;
 }
 
 .sidebar-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  min-height: 3.6rem;
-  padding: 0.45rem 0.2rem;
-  border-radius: 12px;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 10px;
   color: var(--muted);
   text-decoration: none;
 }
@@ -188,14 +187,6 @@ a:hover {
 .sidebar-item:hover {
   color: var(--leaf);
   background: var(--moss);
-}
-
-.sidebar-item span {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-  text-align: center;
 }
 
 .hero {
@@ -312,6 +303,8 @@ textarea:focus-visible {
 input[type='text'],
 input[type='email'],
 input[type='password'],
+input[type='number'],
+input[type='url'],
 select,
 textarea {
   width: 100%;
@@ -405,6 +398,28 @@ input[type='radio'] {
   background: var(--moss);
 }
 
+.gallery-item {
+  margin: 0;
+}
+
+.gallery-item figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-top: 0.55rem;
+}
+
+.gallery-item strong {
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.gallery-item span {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
 .badge {
   display: inline-block;
   margin: 0 0 0.7rem;
@@ -483,6 +498,7 @@ code {
   color: var(--leaf);
 }
 
+.panel,
 .auth {
   margin-top: 1.4rem;
   padding: 1.5rem;
@@ -491,6 +507,7 @@ code {
   background: var(--paper);
 }
 
+.panel .form,
 .auth .form {
   margin-top: 0;
 }

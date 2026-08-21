@@ -53,4 +53,21 @@ describe('Users (e2e)', () => {
         email: 'carla@example.com',
       });
   });
+
+  it('GET /products', () => {
+    return request(app.getHttpServer())
+      .get('/products')
+      .expect(200)
+      .expect((res) => {
+        expect(Array.isArray(res.body)).toBe(true);
+        expect(res.body[0]).toMatchObject({
+          id: 1,
+          name: 'Oliveira em vaso sage',
+          price: 248,
+          image: {
+            name: 'oliveira-vaso-sage.jpg',
+          },
+        });
+      });
+  });
 });
