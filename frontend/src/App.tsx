@@ -11,6 +11,7 @@ function App() {
           <a href="#botoes">Botões</a>
           <a href="#formulario">Formulário</a>
           <a href="#conteudo">Conteúdo</a>
+          <a href="#galeria">Galeria</a>
         </nav>
       </header>
 
@@ -130,8 +131,8 @@ function App() {
 
         <section id="conteudo" className="block">
           <p className="eyebrow">Conteúdo</p>
-          <h2>Card e citação</h2>
-          <p>Blocos simples para produto, aviso ou depoimento.</p>
+          <h2>Cards e citação</h2>
+          <p>Blocos simples para produto, aviso ou depoimento. Sem sombra.</p>
 
           <article className="card">
             <p className="badge">Novo</p>
@@ -143,10 +144,41 @@ function App() {
             <p className="price">R$ 186</p>
           </article>
 
+          <article className="card card-media">
+            <img
+              src="https://picsum.photos/200/300"
+              alt="Oliveira em vaso, à luz da rua"
+            />
+            <div className="card-body">
+              <p className="badge">Peça única</p>
+              <h3>Oliveira à janela</h3>
+              <p>
+                O mesmo objeto, agora com foto. A imagem ocupa o topo; o texto
+                fica no recuo de sempre.
+              </p>
+              <p className="price">R$ 248</p>
+            </div>
+          </article>
+
           <blockquote>
             “Menos vitrine, mais cuidado. O verde entra como tom de fundo, não
             como enfeite.”
           </blockquote>
+        </section>
+
+        <section id="galeria" className="block">
+          <p className="eyebrow">Mídia</p>
+          <h2>Galeria</h2>
+          <p>Grade de imagens para vitrine ou detalhe de produto.</p>
+
+          <div className="gallery">
+            <img src="https://picsum.photos/200/300?random=1" alt="Foto 1" />
+            <img src="https://picsum.photos/200/300?random=2" alt="Foto 2" />
+            <img src="https://picsum.photos/200/300?random=3" alt="Foto 3" />
+            <img src="https://picsum.photos/200/300?random=4" alt="Foto 4" />
+            <img src="https://picsum.photos/200/300?random=5" alt="Foto 5" />
+            <img src="https://picsum.photos/200/300?random=6" alt="Foto 6" />
+          </div>
         </section>
       </main>
 
