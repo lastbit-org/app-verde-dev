@@ -1,0 +1,39 @@
+# Dependências
+/node_modules
+/.pnp
+.pnp.js
+
+# Build / Saída de compilação
+/dist
+/build
+*.tsbuildinfo
+
+# Vite específico
+.vite/
+
+# Logs e Erros
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Dados de cobertura de testes
+/coverage
+
+# Editor e Sistema Operacional
+.DS_Store
+.thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
