@@ -17,6 +17,8 @@ import {
   Textarea,
   Title,
 } from './components'
+import { UsersSection } from './features/users/UsersSection'
+import { products } from './data/products'
 
 const nav = [
   { href: '#tipografia', label: 'Tipografia' },
@@ -24,12 +26,8 @@ const nav = [
   { href: '#formulario', label: 'Formulário' },
   { href: '#conteudo', label: 'Conteúdo' },
   { href: '#galeria', label: 'Galeria' },
+  { href: '#api', label: 'API' },
 ]
-
-const gallery = [1, 2, 3, 4, 5, 6].map((n) => ({
-  src: `https://picsum.photos/200/300?random=${n}`,
-  alt: `Foto ${n}`,
-}))
 
 function App() {
   return (
@@ -147,10 +145,7 @@ function App() {
             title="Oliveira à janela"
             description="O mesmo objeto, agora com foto. A imagem ocupa o topo; o texto fica no recuo de sempre."
             price="R$ 248"
-            image={{
-              src: 'https://picsum.photos/200/300',
-              alt: 'Oliveira em vaso, à luz da rua',
-            }}
+            image={products[0]}
           />
 
           <Quote>
@@ -161,8 +156,10 @@ function App() {
 
         <Section id="galeria" eyebrow="Mídia" title="Galeria">
           <Paragraph>Grade de imagens para vitrine ou detalhe de produto.</Paragraph>
-          <Gallery images={gallery} />
+          <Gallery images={products} />
         </Section>
+
+        <UsersSection />
       </main>
 
       <Footer>Verde · entrega inicial</Footer>

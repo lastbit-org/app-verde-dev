@@ -337,7 +337,7 @@ input[type='radio'] {
 .gallery img {
   display: block;
   width: 100%;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 4 / 5;
   object-fit: cover;
   border-radius: 14px;
   background: var(--moss);
@@ -371,6 +371,50 @@ blockquote {
   font-family: var(--serif);
   font-size: 1.2rem;
   line-height: 1.45;
+}
+
+code {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.9em;
+  color: var(--leaf);
+}
+
+.user-list {
+  list-style: none;
+  margin: 1.4rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.user-list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+}
+
+.user-list strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.user-list span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.status {
+  margin: 0.9rem 0 0;
+  font-size: 0.92rem;
+}
+
+.status-error {
+  color: #7a3f36;
 }
 
 .footer {
