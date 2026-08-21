@@ -37,6 +37,13 @@ const shortcuts = [
   { href: '#api', label: 'API', icon: 'nodes' as const },
 ]
 
+const account = [
+  { href: '#conta', label: 'Meu perfil', icon: 'user' as const },
+  { href: '#pedidos', label: 'Pedidos', icon: 'package' as const },
+  { href: '#compras', label: 'Compras', icon: 'bag' as const },
+  { href: '#favoritos', label: 'Favoritos', icon: 'heart' as const },
+]
+
 function App() {
   return (
     <div className="app">
@@ -175,6 +182,8 @@ function App() {
 
           <Footer>Verde · entrega inicial</Footer>
         </div>
+
+        <Sidebar items={account} side="end" label="Conta" />
       </div>
     </div>
   )
