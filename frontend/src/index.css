@@ -1049,6 +1049,35 @@ code {
   color: var(--ink);
 }
 
+.pix {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.pix-body {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.pix-qr {
+  display: block;
+  width: 160px;
+  height: 160px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.pix-copy textarea {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  min-height: 5.5rem;
+  resize: none;
+}
+
 .footer {
   padding-top: 1.5rem;
   border-top: 1px solid var(--line);
@@ -1113,5 +1142,10 @@ code {
   .cart-qty,
   .cart-price {
     grid-column: 2;
+  }
+
+  .pix-body {
+    grid-template-columns: 1fr;
+    justify-items: start;
   }
 }

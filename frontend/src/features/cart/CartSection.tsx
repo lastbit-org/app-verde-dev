@@ -8,6 +8,7 @@ export function CartSection() {
   const [step, setStep] = useState<'cart' | 'checkout'>('cart')
   const [items, setItems] = useState(initialCart)
   const [done, setDone] = useState(false)
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
   function increase(id: number) {
     setItems((current) =>
@@ -46,10 +47,13 @@ export function CartSection() {
           </Paragraph>
           <CheckoutPage
             deliveryDate="2026-08-28"
+            amount={total}
             onPay={() => setDone(true)}
           />
           {done ? (
-            <p className="status status-ok">Pedido registrado. Pagamento simulado nesta entrega.</p>
+            <p className="status status-ok">
+              Pedido registrado. Pagamento simulado nesta entrega.
+            </p>
           ) : null}
         </>
       )}
