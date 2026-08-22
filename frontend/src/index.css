@@ -225,17 +225,17 @@ a:hover {
 .row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.7rem;
-  margin-top: 1.25rem;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
 }
 
 .btn {
   appearance: none;
   font: inherit;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   line-height: 1;
-  padding: 0.8rem 1.15rem;
+  padding: 0.5rem 0.85rem;
   border-radius: 999px;
   border: 1px solid transparent;
   cursor: pointer;
@@ -294,18 +294,18 @@ textarea:focus-visible {
 
 .form {
   display: grid;
-  gap: 1.1rem;
-  margin-top: 1.4rem;
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
 .field {
   display: grid;
-  gap: 0.4rem;
+  gap: 0.28rem;
 }
 
 .field span,
 .choices legend {
-  font-size: 0.86rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--ink);
 }
@@ -319,16 +319,17 @@ select,
 textarea {
   width: 100%;
   font: inherit;
+  font-size: 0.88rem;
   color: var(--ink);
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  padding: 0.42rem 0.65rem;
 }
 
 textarea {
   resize: vertical;
-  min-height: 7rem;
+  min-height: 4.5rem;
 }
 
 input::placeholder,
@@ -511,9 +512,9 @@ code {
 .panel,
 .auth {
   margin-top: 1.4rem;
-  padding: 1.5rem;
+  padding: 1.1rem 1.15rem 1.05rem;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 14px;
   background: var(--paper);
 }
 
@@ -525,10 +526,10 @@ code {
 .auth-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.3rem;
-  margin-bottom: 1.25rem;
-  padding: 0.25rem;
-  border-radius: 12px;
+  gap: 0.25rem;
+  margin-bottom: 0.9rem;
+  padding: 0.2rem;
+  border-radius: 10px;
   background: var(--moss);
 }
 
@@ -536,10 +537,10 @@ code {
   appearance: none;
   font: inherit;
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   border: 0;
-  border-radius: 10px;
-  padding: 0.65rem 0.8rem;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
   background: transparent;
   color: var(--muted);
   cursor: pointer;
@@ -706,6 +707,124 @@ code {
   color: var(--ink);
 }
 
+.rail {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 2.25rem;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 1.6rem;
+}
+
+.rail-nav {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.rail-nav:hover {
+  border-color: var(--leaf);
+  color: var(--leaf);
+  background: var(--moss);
+}
+
+.rail-track {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.rail-track::-webkit-scrollbar {
+  display: none;
+}
+
+.rail-card {
+  flex: 0 0 calc((100% - 2rem) / 5);
+  min-width: 0;
+  scroll-snap-align: start;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.rail-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--moss);
+}
+
+.rail-card-body {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.45rem 0.5rem 0.55rem;
+}
+
+.rail-card-body strong {
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.rail-card-body span {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.product-list {
+  margin-top: 1.6rem;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+}
+
+.product-list table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.product-list th,
+.product-list td {
+  padding: 0.4rem 0.7rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.product-list th {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--moss);
+}
+
+.product-list td {
+  color: var(--ink);
+  border-top: 1px solid var(--line);
+}
+
+.product-list td:nth-child(1),
+.product-list td:nth-child(3) {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .payments {
   margin-top: 0;
   padding: 1.15rem 1.25rem 1.1rem;
@@ -789,5 +908,9 @@ code {
   .viewer-thumb {
     width: 3.1rem;
     flex: 0 0 3.1rem;
+  }
+
+  .rail-card {
+    flex-basis: calc((100% - 1rem) / 3);
   }
 }

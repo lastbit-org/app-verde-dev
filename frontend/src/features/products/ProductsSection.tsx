@@ -1,9 +1,11 @@
 import { Paragraph, Section } from '../../components'
 import { products as localPhotos } from '../../data/products'
 import { ProductBuyBox } from './ProductBuyBox'
+import { ProductCarousel } from './ProductCarousel'
 import { ProductDescription } from './ProductDescription'
 import { ProductForm } from './ProductForm'
 import { ProductGallery } from './ProductGallery'
+import { ProductList } from './ProductList'
 import { ProductPayments } from './ProductPayments'
 import { ProductViewer } from './ProductViewer'
 import { useProducts } from './useProducts'
@@ -53,6 +55,10 @@ export function ProductsSection() {
           { label: 'Rega', value: 'Quando o substrato secar na superfície' },
         ]}
       />
+
+      <ProductCarousel products={products} />
+
+      <ProductList products={products} />
 
       <ProductGallery products={products} />
 
