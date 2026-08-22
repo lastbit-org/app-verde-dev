@@ -18,3 +18,7 @@ export function applyProductDiscount(id: number, discount: number) {
     body: JSON.stringify({ discount }),
   })
 }
+
+export function getProduct(id: number) {
+  return request<Product>(`/products/${id}`)
+}

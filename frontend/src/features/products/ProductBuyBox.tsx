@@ -5,6 +5,7 @@ type ProductBuyBoxProps = {
   deliveryDate: string
   seller: string
   onBuy?: () => void
+  onAddToCart?: () => void
 }
 
 function formatDay(value: string) {
@@ -40,18 +41,31 @@ export function ProductBuyBox({
   deliveryDate,
   seller,
   onBuy,
+  onAddToCart,
 }: ProductBuyBoxProps) {
   const available = stock > 0
 
   return (
     <aside className="buybox" aria-label="Compra">
-      <Button
-        className="btn-block"
-        disabled={!available}
-        onClick={onBuy}
-      >
-        {available ? 'Comprar agora' : 'Indisponível'}
-      </Button>
+      <div className="buybox-actions">
+        <Button
+          className="btn-block"
+          disabled={!available}
+          onClick={onBuy}
+        >
+          {available ? 'Comprar agora' : 'Indisponível'}
+        </Button>
+        {onAddToCart ? (
+          <Button
+            className="btn-block"
+            variant="secondary"
+            disabled={!available}
+            onClick={onAddToCart}
+          >
+            Adicionar ao carrinho
+          </Button>
+        ) : null}
+      </div>
 
       <dl className="buybox-facts">
         <div>

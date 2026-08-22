@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { Button, Input } from '../../components'
 import type { Product } from '../../types/product'
 
@@ -46,7 +47,9 @@ export function ProductList({ products, onDiscount }: ProductListProps) {
           {products.map((product) => (
             <tr key={product.id}>
               <td>{product.id}</td>
-              <td>{product.name}</td>
+              <td>
+                <Link to={`/product/${product.id}`}>{product.name}</Link>
+              </td>
               <td>
                 {(product.discount ?? 0) > 0 ? (
                   <>

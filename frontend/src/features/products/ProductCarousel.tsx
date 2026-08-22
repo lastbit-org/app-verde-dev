@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { Link } from 'react-router-dom'
 import type { Product } from '../../types/product'
 
 type ProductCarouselProps = {
@@ -66,13 +67,17 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
 
       <div className="rail-track" ref={track}>
         {products.map((product) => (
-          <article key={product.id} className="rail-card">
+          <Link
+            key={product.id}
+            className="rail-card"
+            to={`/product/${product.id}`}
+          >
             <img src={product.image.url} alt={product.image.name} />
             <div className="rail-card-body">
               <strong>{product.name}</strong>
               <span>{formatPrice(product.price)}</span>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
 

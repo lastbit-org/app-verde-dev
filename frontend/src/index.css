@@ -522,6 +522,11 @@ input[type="radio"] {
   margin: 0;
 }
 
+.gallery-item a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .gallery-item figcaption {
   display: flex;
   flex-direction: column;
@@ -667,6 +672,34 @@ code {
   border: 1px solid var(--line);
   border-radius: 18px;
   background: var(--paper);
+}
+
+.buybox-actions {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.crumbs {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.crumbs a {
+  color: var(--muted);
+}
+
+.crumbs a:hover {
+  color: var(--leaf);
+}
+
+.product-links {
+  gap: 1.15rem;
+}
+
+.payments-go {
+  margin: 0.85rem 0 0;
+  font-size: 0.85rem;
 }
 
 .product-stage {
@@ -865,6 +898,8 @@ code {
   border-radius: 12px;
   overflow: hidden;
   background: var(--paper);
+  color: inherit;
+  text-decoration: none;
 }
 
 .rail-card img {
@@ -1029,6 +1064,15 @@ code {
 .cart-line h4 {
   margin: 0 0 0.2rem;
   font-size: 0.95rem;
+}
+
+.cart-line h4 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.cart-line h4 a:hover {
+  color: var(--leaf);
 }
 
 .cart-line .muted {

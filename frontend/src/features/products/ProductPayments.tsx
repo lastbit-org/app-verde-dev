@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Paragraph, Title } from '../../components'
 
 type PaymentMethod = {
@@ -35,7 +36,7 @@ export function ProductPayments({
     <section className="payments" aria-labelledby="payments-title">
       <Title as="h4">Meios de pagamento</Title>
       <Paragraph variant="muted">
-        Informações da loja. O pagamento é feito só no checkout.
+        Informações da loja. O pagamento acontece na página de checkout.
       </Paragraph>
       <ul className="payments-list">
         {methods.map((method) => (
@@ -45,6 +46,11 @@ export function ProductPayments({
           </li>
         ))}
       </ul>
+      <p className="payments-go">
+        <Link to="/cart">Ver carrinho</Link>
+        {' · '}
+        <Link to="/checkout">Ir ao pagamento</Link>
+      </p>
     </section>
   )
 }

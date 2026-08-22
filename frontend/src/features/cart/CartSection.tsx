@@ -4,7 +4,7 @@ import { Paragraph, Section } from '../../components'
 import type { CreateOrderInput, Order } from '../../types/order'
 import { CartPage } from './CartPage'
 import { CheckoutPage } from './CheckoutPage'
-import { initialCart } from './cartData'
+import { useCart } from './CartProvider'
 
 type CartSectionProps = {
   userId?: number
@@ -12,30 +12,11 @@ type CartSectionProps = {
 }
 
 export function CartSection({ userId = 1, onAddOrder }: CartSectionProps) {
+  const { items, total, increase, decrease, remove } = useCart()
   const [step, setStep] = useState<'cart' | 'checkout'>('cart')
-  const [items, setItems] = useState(initialCart)
   const [paying, setPaying] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [created, setCreated] = useState<Order | null>(null)
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-
-  function increase(id: number) {
-    setItems((current) =>
-      current.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
-      ),
-    )
-  }
-
-  function decrease(id: number) {
-    setItems((current) =>
-      current.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity - 1) }
-          : item,
-      ),
-    )
-  }
 
   async function addOrder(payment: string) {
     setPaying(true)
@@ -70,6 +51,8 @@ export function CartSection({ userId = 1, onAddOrder }: CartSectionProps) {
           items={items}
           onIncrease={increase}
           onDecrease={decrease}
+          onRemove={remove}
+          continueLabel="Ir ao pagamento"
           onContinue={() => {
             setCreated(null)
             setError(null)

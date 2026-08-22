@@ -15,8 +15,6 @@ import {
   Title,
 } from '../components'
 import { products } from '../data/products'
-import { useSession } from '../features/auth/SessionProvider'
-import { CartSection } from '../features/cart/CartSection'
 import { OrdersSection } from '../features/orders/OrdersSection'
 import { useOrders } from '../features/orders/useOrders'
 import { ProductsSection } from '../features/products/ProductsSection'
@@ -24,8 +22,7 @@ import { UsersSection } from '../features/users/UsersSection'
 import { AppChrome, PageFooter } from '../layout/AppChrome'
 
 export function StorePage() {
-  const { user } = useSession()
-  const { orders, loading, error, addOrder } = useOrders()
+  const { orders, loading, error } = useOrders()
 
   return (
     <AppChrome>
@@ -152,8 +149,6 @@ export function StorePage() {
         </Section>
 
         <ProductsSection />
-
-        <CartSection userId={user?.id ?? 1} onAddOrder={addOrder} />
 
         <UsersSection />
       </main>

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { Product } from '../../types/product'
 
 type ProductGalleryProps = {
@@ -20,11 +21,13 @@ export function ProductGallery({ products }: ProductGalleryProps) {
     <div className="gallery">
       {products.map((product) => (
         <figure key={product.id} className="gallery-item">
-          <img src={product.image.url} alt={product.image.name} />
-          <figcaption>
-            <strong>{product.name}</strong>
-            <span>{formatPrice(product.price)}</span>
-          </figcaption>
+          <Link to={`/product/${product.id}`}>
+            <img src={product.image.url} alt={product.image.name} />
+            <figcaption>
+              <strong>{product.name}</strong>
+              <span>{formatPrice(product.price)}</span>
+            </figcaption>
+          </Link>
         </figure>
       ))}
     </div>

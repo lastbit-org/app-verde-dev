@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Button, Paragraph, Title } from '../../components'
 import type { CartItem } from './cartData'
 
@@ -5,6 +6,8 @@ type CartPageProps = {
   items: CartItem[]
   onIncrease: (id: number) => void
   onDecrease: (id: number) => void
+  onRemove?: (id: number) => void
+  continueLabel?: string
   onContinue: () => void
 }
 
@@ -19,6 +22,8 @@ export function CartPage({
   items,
   onIncrease,
   onDecrease,
+  onRemove,
+  continueLabel = 'Continuar',
   onContinue,
 }: CartPageProps) {
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -30,9 +35,15 @@ export function CartPage({
           <li key={item.id} className="cart-line">
             <img src={item.image.src} alt={item.image.alt} />
             <div className="cart-line-info">
-              <Title as="h4">{item.name}</Title>
+              <Title as="h4">
+                <Link to={`/product/${item.id}`}>{item.name}</Link>
+              </Title>
               <Paragraph variant="muted">{item.description}</Paragraph>
-              <button type="button" className="cart-remove">
+              <button
+                type="button"
+                className="cart-remove"
+                onClick={() => onRemove?.(item.id)}
+              >
                 Remover
               </button>
             </div>
@@ -67,7 +78,7 @@ export function CartPage({
         <p className="cart-total">
           Total <strong>{formatPrice(total)}</strong>
         </p>
-        <Button onClick={onContinue}>Continuar</Button>
+        <Button onClick={onContinue}>{continueLabel}</Button>
       </div>
     </div>
   )
