@@ -19,6 +19,7 @@ import {
 } from './components'
 import { UsersSection } from './features/users/UsersSection'
 import { AuthSection } from './features/auth/AuthSection'
+import { AccountSection } from './features/account/AccountSection'
 import { ProductsSection } from './features/products/ProductsSection'
 import { products } from './data/products'
 
@@ -38,7 +39,7 @@ const shortcuts = [
 ]
 
 const account = [
-  { href: '#conta', label: 'Meu perfil', icon: 'user' as const },
+  { href: '#perfil', label: 'Meu perfil', icon: 'user' as const },
   { href: '#pedidos', label: 'Pedidos', icon: 'package' as const },
   { href: '#compras', label: 'Compras', icon: 'bag' as const },
   { href: '#favoritos', label: 'Favoritos', icon: 'heart' as const },
@@ -148,6 +149,8 @@ function App() {
         </Section>
 
         <AuthSection />
+
+        <AccountSection />
 
         <Section id="conteudo" eyebrow="Conteúdo" title="Cards e citação">
           <Paragraph>

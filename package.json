@@ -3,8 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "concurrently -n backend,frontend -c green,cyan \"npm run start:dev --prefix backend\" \"npm run dev --prefix frontend\"",
-    "build": "npm run build --prefix backend && npm run build --prefix frontend"
+    "exec-backend": "npm run dev --prefix backend",
+    "exec-frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run exec-backend\" \"npm run exec-frontend\""
   },
   "dependencies": {
     "concurrently": "^10.0.5"
