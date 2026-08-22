@@ -11,6 +11,8 @@ npm run start:dev
 
 Servidor em `http://localhost:3000`.
 
+O CORS aceita só o frontend (`http://localhost:5173` e `http://127.0.0.1:5173`). Outras origens vão em `CORS_ORIGIN`, separadas por vírgula.
+
 ## Users
 
 | Método | Rota | Descrição |

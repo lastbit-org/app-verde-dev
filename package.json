@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "exec-backend": "npm run dev --prefix backend",
+    "exec-backend": "npm run start:dev --prefix backend",
     "exec-frontend": "npm run dev --prefix frontend",
     "dev": "concurrently \"npm run exec-backend\" \"npm run exec-frontend\""
   },
