@@ -849,6 +849,11 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
+.order-items {
+  white-space: normal;
+  max-width: 22rem;
+}
+
 .product-list s {
   margin-right: 0.35rem;
 }

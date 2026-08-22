@@ -21,6 +21,7 @@ import { UsersSection } from './features/users/UsersSection'
 import { AuthSection } from './features/auth/AuthSection'
 import { AccountSection } from './features/account/AccountSection'
 import { CartSection } from './features/cart/CartSection'
+import { OrdersSection } from './features/orders/OrdersSection'
 import { ProductsSection } from './features/products/ProductsSection'
 import { products } from './data/products'
 
@@ -153,6 +154,8 @@ function App() {
         <AuthSection />
 
         <AccountSection />
+
+        <OrdersSection />
 
         <Section id="conteudo" eyebrow="Conteúdo" title="Cards e citação">
           <Paragraph>
