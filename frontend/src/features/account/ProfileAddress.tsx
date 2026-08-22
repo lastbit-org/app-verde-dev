@@ -38,6 +38,7 @@ type ProfileAddressProps = {
   complement?: string
   city?: string
   uf?: string
+  submitLabel?: string
 }
 
 export function ProfileAddress({
@@ -47,6 +48,7 @@ export function ProfileAddress({
   complement = 'Apto 42',
   city = 'São Paulo',
   uf = 'SP',
+  submitLabel = 'Salvar endereço',
 }: ProfileAddressProps) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -114,7 +116,7 @@ export function ProfileAddress({
         </div>
 
         <div className="row">
-          <Button type="submit">Salvar endereço</Button>
+          <Button type="submit">{submitLabel}</Button>
         </div>
       </form>
     </div>

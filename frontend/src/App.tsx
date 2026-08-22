@@ -20,6 +20,7 @@ import {
 import { UsersSection } from './features/users/UsersSection'
 import { AuthSection } from './features/auth/AuthSection'
 import { AccountSection } from './features/account/AccountSection'
+import { CartSection } from './features/cart/CartSection'
 import { ProductsSection } from './features/products/ProductsSection'
 import { products } from './data/products'
 
@@ -27,6 +28,7 @@ const menu = [
   { href: '#topo', label: 'Início' },
   { href: '#conteudo', label: 'Produtos' },
   { href: '#galeria', label: 'Galeria' },
+  { href: '#carrinho', label: 'Carrinho' },
   { href: '#conta', label: 'Conta' },
 ]
 
@@ -41,7 +43,7 @@ const shortcuts = [
 const account = [
   { href: '#perfil', label: 'Meu perfil', icon: 'user' as const },
   { href: '#pedidos', label: 'Pedidos', icon: 'package' as const },
-  { href: '#compras', label: 'Compras', icon: 'bag' as const },
+  { href: '#carrinho', label: 'Compras', icon: 'bag' as const },
   { href: '#favoritos', label: 'Favoritos', icon: 'heart' as const },
 ]
 
@@ -179,6 +181,8 @@ function App() {
         </Section>
 
         <ProductsSection />
+
+        <CartSection />
 
           <UsersSection />
           </main>
