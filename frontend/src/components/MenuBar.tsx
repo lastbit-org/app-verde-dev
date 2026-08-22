@@ -1,3 +1,5 @@
+import { Link, NavLink } from 'react-router-dom'
+
 type MenuItem = {
   href: string
   label: string
@@ -11,16 +13,26 @@ type MenuBarProps = {
 export function MenuBar({ brand, items }: MenuBarProps) {
   return (
     <header className="menubar">
-      <a className="brand" href="#topo">
+      <Link className="brand" to="/">
         <span className="brand-mark" aria-hidden="true" />
         {brand}
-      </a>
+      </Link>
       <nav className="menubar-nav" aria-label="Principal">
-        {items.map((item) => (
-          <a key={item.href} href={item.href}>
-            {item.label}
-          </a>
-        ))}
+        {items.map((item) =>
+          item.href === '/login' ? (
+            <NavLink
+              key={item.href}
+              to={item.href}
+              className={({ isActive }) => (isActive ? 'is-active' : undefined)}
+            >
+              {item.label}
+            </NavLink>
+          ) : (
+            <Link key={item.href} to={item.href}>
+              {item.label}
+            </Link>
+          ),
+        )}
       </nav>
     </header>
   )

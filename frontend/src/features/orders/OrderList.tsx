@@ -1,4 +1,4 @@
-import type { Order } from './orderData'
+import type { Order } from '../../types/order'
 
 type OrderListProps = {
   orders: Order[]
@@ -42,12 +42,12 @@ export function OrderList({ orders }: OrderListProps) {
         <tbody>
           {orders.map((order) => (
             <tr key={order.id}>
-              <td>{order.id}</td>
-              <td>{formatDay(order.date)}</td>
+              <td>{order.orderId}</td>
+              <td>{formatDay(order.createdAt)}</td>
               <td className="order-items">{formatItems(order)}</td>
               <td>{order.payment}</td>
               <td>{order.status}</td>
-              <td>{formatPrice(order.total)}</td>
+              <td>{formatPrice(order.totalPrice)}</td>
             </tr>
           ))}
         </tbody>

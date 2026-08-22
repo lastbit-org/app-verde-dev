@@ -96,6 +96,14 @@ a:hover {
   padding: 0 1.75rem 4rem;
 }
 
+.page-auth {
+  max-width: 32rem;
+}
+
+.login-back {
+  margin-top: 1.25rem;
+}
+
 .app {
   min-height: 100svh;
 }
@@ -151,7 +159,8 @@ a:hover {
   white-space: nowrap;
 }
 
-.menubar-nav a:hover {
+.menubar-nav a:hover,
+.menubar-nav a.is-active {
   color: var(--leaf);
 }
 

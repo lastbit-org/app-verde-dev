@@ -1,13 +1,21 @@
 import { useState } from 'react'
+import { createOrderInput } from '../../api/orders'
 import { Paragraph, Section } from '../../components'
+import type { CreateOrderInput, Order } from '../../types/order'
 import { CartPage } from './CartPage'
 import { CheckoutPage } from './CheckoutPage'
 import { initialCart } from './cartData'
 
-export function CartSection() {
+type CartSectionProps = {
+  onAddOrder: (payload: CreateOrderInput) => Promise<Order>
+}
+
+export function CartSection({ onAddOrder }: CartSectionProps) {
   const [step, setStep] = useState<'cart' | 'checkout'>('cart')
   const [items, setItems] = useState(initialCart)
-  const [done, setDone] = useState(false)
+  const [paying, setPaying] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [created, setCreated] = useState<Order | null>(null)
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
   function increase(id: number) {
@@ -28,6 +36,31 @@ export function CartSection() {
     )
   }
 
+  async function addOrder(payment: string) {
+    setPaying(true)
+    setError(null)
+
+    try {
+      const order = await onAddOrder(
+        createOrderInput(
+          items.map((item) => ({
+            productId: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            discount: 0,
+          })),
+          payment,
+        ),
+      )
+      setCreated(order)
+    } catch {
+      setError('Não foi possível registrar o pedido. Confira se a API está no ar.')
+    } finally {
+      setPaying(false)
+    }
+  }
+
   return (
     <Section id="carrinho" eyebrow="Pedido" title={step === 'cart' ? 'Carrinho' : 'Checkout'}>
       {step === 'cart' ? (
@@ -36,7 +69,8 @@ export function CartSection() {
           onIncrease={increase}
           onDecrease={decrease}
           onContinue={() => {
-            setDone(false)
+            setCreated(null)
+            setError(null)
             setStep('checkout')
           }}
         />
@@ -48,11 +82,13 @@ export function CartSection() {
           <CheckoutPage
             deliveryDate="2026-08-28"
             amount={total}
-            onPay={() => setDone(true)}
+            paying={paying}
+            onPay={(payment) => void addOrder(payment)}
           />
-          {done ? (
+          {error ? <p className="status status-error">{error}</p> : null}
+          {created ? (
             <p className="status status-ok">
-              Pedido registrado. Pagamento simulado nesta entrega.
+              Pedido {created.orderId} registrado. Pagamento simulado nesta entrega.
             </p>
           ) : null}
         </>

@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 type SidebarIcon =
   | 'home'
   | 'shop'
@@ -115,15 +117,15 @@ export function Sidebar({
     <aside className={`sidebar${side === 'end' ? ' sidebar-end' : ''}`}>
       <nav className="sidebar-nav" aria-label={label}>
         {items.map((item) => (
-          <a
+          <Link
             key={item.href}
             className="sidebar-item"
-            href={item.href}
+            to={item.href}
             aria-label={item.label}
             title={item.label}
           >
             <Icon name={item.icon} />
-          </a>
+          </Link>
         ))}
       </nav>
     </aside>

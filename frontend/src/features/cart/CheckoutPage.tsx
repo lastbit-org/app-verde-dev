@@ -3,10 +3,20 @@ import { Button, ChoiceGroup, Paragraph, Radio, Title } from '../../components'
 import { ProfileAddress } from '../account/ProfileAddress'
 import { PixPayment } from '../payments/PixPayment'
 
+export const paymentLabels = {
+  pix: 'Pix',
+  credit: 'Cartão de crédito',
+  debit: 'Cartão de débito',
+  boleto: 'Boleto',
+} as const
+
+export type PaymentMethod = keyof typeof paymentLabels
+
 type CheckoutPageProps = {
   deliveryDate: string
   amount: number
-  onPay: () => void
+  paying: boolean
+  onPay: (payment: string) => void
 }
 
 function formatDay(value: string) {
@@ -17,8 +27,13 @@ function formatDay(value: string) {
   })
 }
 
-export function CheckoutPage({ deliveryDate, amount, onPay }: CheckoutPageProps) {
-  const [method, setMethod] = useState('pix')
+export function CheckoutPage({
+  deliveryDate,
+  amount,
+  paying,
+  onPay,
+}: CheckoutPageProps) {
+  const [method, setMethod] = useState<PaymentMethod>('pix')
 
   return (
     <div className="checkout">
@@ -72,7 +87,12 @@ export function CheckoutPage({ deliveryDate, amount, onPay }: CheckoutPageProps)
         {method === 'pix' ? <PixPayment amount={amount} /> : null}
 
         <div className="row">
-          <Button onClick={onPay}>Pagar e finalizar</Button>
+          <Button
+            disabled={paying}
+            onClick={() => onPay(paymentLabels[method])}
+          >
+            {paying ? 'Registrando…' : 'Pagar e finalizar'}
+          </Button>
         </div>
       </div>
     </div>
