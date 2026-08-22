@@ -7,10 +7,11 @@ import { CheckoutPage } from './CheckoutPage'
 import { initialCart } from './cartData'
 
 type CartSectionProps = {
+  userId?: number
   onAddOrder: (payload: CreateOrderInput) => Promise<Order>
 }
 
-export function CartSection({ onAddOrder }: CartSectionProps) {
+export function CartSection({ userId = 1, onAddOrder }: CartSectionProps) {
   const [step, setStep] = useState<'cart' | 'checkout'>('cart')
   const [items, setItems] = useState(initialCart)
   const [paying, setPaying] = useState(false)
@@ -51,6 +52,7 @@ export function CartSection({ onAddOrder }: CartSectionProps) {
             discount: 0,
           })),
           payment,
+          userId,
         ),
       )
       setCreated(order)

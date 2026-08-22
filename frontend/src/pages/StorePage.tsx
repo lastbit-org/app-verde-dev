@@ -15,7 +15,7 @@ import {
   Title,
 } from '../components'
 import { products } from '../data/products'
-import { AccountSection } from '../features/account/AccountSection'
+import { useSession } from '../features/auth/SessionProvider'
 import { CartSection } from '../features/cart/CartSection'
 import { OrdersSection } from '../features/orders/OrdersSection'
 import { useOrders } from '../features/orders/useOrders'
@@ -24,6 +24,7 @@ import { UsersSection } from '../features/users/UsersSection'
 import { AppChrome, PageFooter } from '../layout/AppChrome'
 
 export function StorePage() {
+  const { user } = useSession()
   const { orders, loading, error, addOrder } = useOrders()
 
   return (
@@ -122,8 +123,6 @@ export function StorePage() {
           </form>
         </Section>
 
-        <AccountSection />
-
         <OrdersSection orders={orders} loading={loading} error={error} />
 
         <Section id="conteudo" eyebrow="Conteúdo" title="Cards e citação">
@@ -154,7 +153,7 @@ export function StorePage() {
 
         <ProductsSection />
 
-        <CartSection onAddOrder={addOrder} />
+        <CartSection userId={user?.id ?? 1} onAddOrder={addOrder} />
 
         <UsersSection />
       </main>

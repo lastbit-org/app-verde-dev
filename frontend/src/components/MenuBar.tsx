@@ -19,7 +19,7 @@ export function MenuBar({ brand, items }: MenuBarProps) {
       </Link>
       <nav className="menubar-nav" aria-label="Principal">
         {items.map((item) =>
-          item.href === '/login' ? (
+          item.href.startsWith('/') && !item.href.includes('#') ? (
             <NavLink
               key={item.href}
               to={item.href}

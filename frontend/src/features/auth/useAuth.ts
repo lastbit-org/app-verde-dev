@@ -1,13 +1,17 @@
 import { useCallback, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ApiError } from '../../api/client'
 import { loginUser, signupUser } from '../../api/auth'
 import type { AuthMode, AuthPayload } from '../../types/auth'
+import { useSession } from './SessionProvider'
 
 export function useAuth() {
   const [mode, setMode] = useState<AuthMode>('login')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const { save } = useSession()
+  const navigate = useNavigate()
 
   const switchMode = useCallback((next: AuthMode) => {
     setMode(next)
@@ -22,17 +26,17 @@ export function useAuth() {
       setMessage(null)
 
       try {
-        if (mode === 'login') {
-          const user = await loginUser({ email: payload.email })
-          setMessage(`Olá, ${user.name}.`)
-          return
-        }
+        const user =
+          mode === 'login'
+            ? await loginUser({ email: payload.email })
+            : await signupUser({
+                name: payload.name,
+                email: payload.email,
+              })
 
-        const user = await signupUser({
-          name: payload.name,
-          email: payload.email,
-        })
-        setMessage(`Conta criada para ${user.name}.`)
+        save(user)
+        setMessage(`Olá, ${user.name}.`)
+        navigate('/user')
       } catch (err) {
         if (err instanceof ApiError && err.status === 409) {
           setError('Este e-mail já está em uso.')
@@ -45,7 +49,7 @@ export function useAuth() {
         setLoading(false)
       }
     },
-    [mode],
+    [mode, navigate, save],
   )
 
   return { mode, switchMode, loading, error, message, submit }

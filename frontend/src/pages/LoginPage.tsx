@@ -20,6 +20,8 @@ export function LoginPage() {
 
         <p className="login-back">
           <Link to="/">Voltar à loja</Link>
+          {' · '}
+          <Link to="/user">Ver conta</Link>
         </p>
       </main>
 

@@ -318,8 +318,84 @@ textarea:focus-visible {
   gap: 1rem;
 }
 
+@media (min-width: 800px) {
+  .account-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .account-grid .panel {
   margin-top: 0;
+}
+
+.user-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(16rem, 0.85fr);
+  gap: 1rem;
+  margin-top: 1.4rem;
+}
+
+.user-head .panel {
+  margin-top: 0;
+}
+
+.user-card {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.user-card h4,
+.user-stats h4 {
+  margin-bottom: 0.3rem;
+}
+
+.user-card .muted {
+  margin-bottom: 0.35rem;
+}
+
+.user-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 999px;
+  background: var(--moss);
+  color: var(--leaf);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.user-meta {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.user-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0.45rem 0 0.8rem;
+}
+
+.user-stats-grid dt {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.user-stats-grid dd {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.user-actions {
+  margin-top: 0.5rem;
+  padding-bottom: 1rem;
 }
 
 .security-mfa {
@@ -1156,5 +1232,11 @@ code {
   .pix-body {
     grid-template-columns: 1fr;
     justify-items: start;
+  }
+
+  .user-head,
+  .user-stats-grid,
+  .account-grid {
+    grid-template-columns: 1fr;
   }
 }
