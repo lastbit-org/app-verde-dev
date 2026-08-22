@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ProductsService } from './products.service';
 
 describe('ProductsService', () => {
@@ -17,6 +17,7 @@ describe('ProductsService', () => {
       id: 1,
       name: 'Oliveira em vaso sage',
       price: 248,
+      discount: 0,
       image: {
         url: 'https://picsum.photos/seed/oliveira/600/800',
         name: 'oliveira-vaso-sage.jpg',
@@ -40,6 +41,15 @@ describe('ProductsService', () => {
 
     expect(product.id).toBe(6);
     expect(product.name).toBe('Ramo seco');
+    expect(product.discount).toBe(0);
     expect(service.findAll()).toHaveLength(6);
+  });
+
+  it('applies a discount', () => {
+    expect(service.applyDiscount(1, 10).discount).toBe(10);
+  });
+
+  it('rejects an invalid discount', () => {
+    expect(() => service.applyDiscount(1, 150)).toThrow(BadRequestException);
   });
 });

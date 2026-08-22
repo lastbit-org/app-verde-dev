@@ -11,3 +11,10 @@ export function createProduct(payload: CreateProductInput) {
     body: JSON.stringify(payload),
   })
 }
+
+export function applyProductDiscount(id: number, discount: number) {
+  return request<Product>(`/products/${id}/discount`, {
+    method: 'PATCH',
+    body: JSON.stringify({ discount }),
+  })
+}

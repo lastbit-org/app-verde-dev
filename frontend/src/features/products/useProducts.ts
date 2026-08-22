@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { createProduct, getProducts } from '../../api/products'
+import { applyProductDiscount, createProduct, getProducts } from '../../api/products'
 import type { CreateProductInput, Product } from '../../types/product'
 
 export function useProducts() {
@@ -45,5 +45,22 @@ export function useProducts() {
     }
   }, [])
 
-  return { products, loading, saving, error, message, addProduct }
+  const setDiscount = useCallback(async (id: number, discount: number) => {
+    setError(null)
+    setMessage(null)
+
+    try {
+      const product = await applyProductDiscount(id, discount)
+      setProducts((current) =>
+        current.map((item) => (item.id === id ? product : item)),
+      )
+      setMessage(`Desconto de ${product.discount}% em ${product.name}.`)
+      return true
+    } catch {
+      setError('Não foi possível aplicar o desconto.')
+      return false
+    }
+  }, [])
+
+  return { products, loading, saving, error, message, addProduct, setDiscount }
 }

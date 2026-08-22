@@ -11,7 +11,8 @@ import { ProductViewer } from './ProductViewer'
 import { useProducts } from './useProducts'
 
 export function ProductsSection() {
-  const { products, loading, saving, error, message, addProduct } = useProducts()
+  const { products, loading, saving, error, message, addProduct, setDiscount } =
+    useProducts()
   const product = products[0]
 
   const viewerImages =
@@ -58,7 +59,7 @@ export function ProductsSection() {
 
       <ProductCarousel products={products} />
 
-      <ProductList products={products} />
+      <ProductList products={products} onDiscount={setDiscount} />
 
       <ProductGallery products={products} />
 

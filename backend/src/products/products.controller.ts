@@ -4,9 +4,10 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
-import type { CreateProductDto, Product } from './product';
+import type { ApplyDiscountDto, CreateProductDto, Product } from './product';
 import { ProductsService } from './products.service';
 
 @Controller('products')
@@ -26,5 +27,13 @@ export class ProductsController {
   @Post()
   create(@Body() dto: CreateProductDto): Product {
     return this.productsService.create(dto);
+  }
+
+  @Patch(':id/discount')
+  applyDiscount(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ApplyDiscountDto,
+  ): Product {
+    return this.productsService.applyDiscount(id, dto.discount);
   }
 }

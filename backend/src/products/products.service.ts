@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import type { CreateProductDto, Product } from './product';
 
 @Injectable()
@@ -8,6 +8,7 @@ export class ProductsService {
       id: 1,
       name: 'Oliveira em vaso sage',
       price: 248,
+      discount: 0,
       image: {
         url: 'https://picsum.photos/seed/oliveira/600/800',
         name: 'oliveira-vaso-sage.jpg',
@@ -17,6 +18,7 @@ export class ProductsService {
       id: 2,
       name: 'Vaso de cerâmica artesanal',
       price: 186,
+      discount: 0,
       image: {
         url: 'https://picsum.photos/seed/vaso/600/800',
         name: 'vaso-ceramica.jpg',
@@ -26,6 +28,7 @@ export class ProductsService {
       id: 3,
       name: 'Kit de cuidados',
       price: 92,
+      discount: 0,
       image: {
         url: 'https://picsum.photos/seed/cuidados/600/800',
         name: 'kit-cuidados.jpg',
@@ -35,6 +38,7 @@ export class ProductsService {
       id: 4,
       name: 'Planta de interior',
       price: 164,
+      discount: 0,
       image: {
         url: 'https://picsum.photos/seed/planta/600/800',
         name: 'planta-interior.jpg',
@@ -44,6 +48,7 @@ export class ProductsService {
       id: 5,
       name: 'Composição sobre linho',
       price: 210,
+      discount: 0,
       image: {
         url: 'https://picsum.photos/seed/linho/600/800',
         name: 'composicao-linho.jpg',
@@ -72,10 +77,21 @@ export class ProductsService {
       id: this.nextId++,
       name: dto.name,
       price: dto.price,
+      discount: 0,
       image: dto.image,
     };
 
     this.products.push(product);
+    return product;
+  }
+
+  applyDiscount(id: number, discount: number): Product {
+    if (Number.isNaN(discount) || discount < 0 || discount > 100) {
+      throw new BadRequestException('Discount must be between 0 and 100');
+    }
+
+    const product = this.findOne(id);
+    product.discount = discount;
     return product;
   }
 }
