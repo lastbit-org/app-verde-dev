@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import { RequireAuth } from './features/auth/RequireAuth'
+import { CancelOrderPage } from './pages/CancelOrderPage'
 import { FavoritesPage } from './pages/FavoritesPage'
 import { LoginPage } from './pages/LoginPage'
 import { OrdersTablePage } from './pages/OrdersTablePage'
@@ -64,6 +65,14 @@ function App() {
         element={
           <RequireAuth roles={['admin', 'partner']}>
             <ProductEditorPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/purchases/:orderId/cancel"
+        element={
+          <RequireAuth>
+            <CancelOrderPage />
           </RequireAuth>
         }
       />

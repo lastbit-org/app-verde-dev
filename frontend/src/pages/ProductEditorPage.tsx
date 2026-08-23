@@ -19,11 +19,16 @@ export function ProductEditorPage() {
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [createdPath, setCreatedPath] = useState<string | null>(null)
+  const [formKey, setFormKey] = useState(0)
   const navigate = useNavigate()
 
   async function save(payload: CreateProductInput) {
     setSaving(true)
     setError(null)
+    if (!editing) {
+      setCreatedPath(null)
+    }
 
     try {
       const saved = editing
@@ -35,7 +40,13 @@ export function ProductEditorPage() {
             image: payload.image,
           })
         : await createProduct(payload)
-      navigate(`/product/${saved.id}`)
+
+      if (editing) {
+        navigate(`/product/${saved.id}`)
+      } else {
+        setCreatedPath(`/product/${saved.id}`)
+        setFormKey((current) => current + 1)
+      }
       return true
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
@@ -92,7 +103,7 @@ export function ProductEditorPage() {
 
         {user && (!editing || product) ? (
           <ProductForm
-            key={product?.id ?? 'new'}
+            key={editing ? (product?.id ?? 'edit') : `new-${formKey}`}
             product={product}
             saving={saving}
             error={error}
@@ -100,6 +111,15 @@ export function ProductEditorPage() {
             submitLabel={editing ? 'Salvar alterações' : 'Cadastrar produto'}
             onSubmit={save}
           />
+        ) : null}
+
+        {!editing && createdPath ? (
+          <p className="status status-ok">
+            Peça cadastrada.{' '}
+            <Link to={createdPath}>
+              {`${window.location.origin}${createdPath}`}
+            </Link>
+          </p>
         ) : null}
 
         <p className="row product-links">

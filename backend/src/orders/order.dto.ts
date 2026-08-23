@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsString,
   Max,
+  MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -47,6 +48,24 @@ export class UpdateOrderDto {
   @IsOptional()
   @IsIn(['preparando', 'em trânsito', 'entregue', 'cancelado'])
   status?: 'preparando' | 'em trânsito' | 'entregue' | 'cancelado';
+}
+
+export const CANCEL_REASONS = [
+  'changed_mind',
+  'wrong_item',
+  'too_slow',
+  'found_cheaper',
+  'other',
+] as const;
+
+export class CancelOrderDto {
+  @IsIn(CANCEL_REASONS)
+  reason: (typeof CANCEL_REASONS)[number];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(400)
+  details?: string;
 }
 
 export class CreateOrderItemDto {

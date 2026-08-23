@@ -4,6 +4,7 @@ import type { Order, OrderItem, OrderStatus } from '../../types/order'
 
 export type PurchasedItem = {
   key: string
+  orderId: number
   orderCode: string
   createdAt: string
   status: OrderStatus
@@ -43,6 +44,7 @@ export function flattenPurchases(orders: Order[]): PurchasedItem[] {
       .sort((a, b) => a.id - b.id)
       .map((item) => ({
         key: `${order.id}-${item.id}`,
+        orderId: order.id,
         orderCode: order.orderId,
         createdAt: order.createdAt,
         status: order.status,
@@ -55,6 +57,10 @@ export function flattenPurchases(orders: Order[]): PurchasedItem[] {
         total: lineTotal(item),
       })),
   )
+}
+
+function canCancel(status: OrderStatus) {
+  return status !== 'entregue' && status !== 'cancelado'
 }
 
 export function PurchaseList({ items }: PurchaseListProps) {
@@ -71,6 +77,7 @@ export function PurchaseList({ items }: PurchaseListProps) {
             <th>Desconto</th>
             <th>Total</th>
             <th>Status</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -86,6 +93,13 @@ export function PurchaseList({ items }: PurchaseListProps) {
               <td>{item.discount}%</td>
               <td>{formatPrice(item.total)}</td>
               <td>{item.status}</td>
+              <td>
+                {canCancel(item.status) ? (
+                  <Link to={`/purchases/${item.orderId}/cancel`}>Cancelar</Link>
+                ) : (
+                  '—'
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

@@ -219,6 +219,29 @@ describe('OrdersService', () => {
     expect(products.rows.find((row) => row.id === 4)?.stock).toBe(6);
   });
 
+  it('lets the owner cancel an order that is not delivered', async () => {
+    const cancelled = await service.cancelOrder(3, bruno, {
+      reason: 'changed_mind',
+      details: 'Não preciso mais',
+    });
+
+    expect(cancelled.status).toBe('cancelado');
+    expect(cancelled.cancelReason).toBe('changed_mind');
+    expect(products.rows.find((row) => row.id === 4)?.stock).toBe(7);
+  });
+
+  it('rejects cancelling a delivered order', async () => {
+    await expect(
+      service.cancelOrder(1, ana, { reason: 'changed_mind' }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('blocks cancelling another customer order', async () => {
+    await expect(
+      service.cancelOrder(1, bruno, { reason: 'changed_mind' }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
   it('updates order status', async () => {
     expect((await service.updateOrder(3, { status: 'em trânsito' })).status).toBe(
       'em trânsito',

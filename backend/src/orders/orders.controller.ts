@@ -14,7 +14,7 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { isAdmin } from '../users/roles';
 import type { User } from '../users/user';
-import { CreateOrderDto, UpdateOrderDto } from './order.dto';
+import { CreateOrderDto, CancelOrderDto, UpdateOrderDto } from './order.dto';
 import type { OrderWithItems } from './order';
 import { OrdersService } from './orders.service';
 
@@ -46,6 +46,15 @@ export class OrdersController {
     @CurrentUser() user: User,
   ): Promise<OrderWithItems> {
     return this.ordersService.createOrder(user.id, dto);
+  }
+
+  @Post(':id/cancel')
+  cancel(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CancelOrderDto,
+    @CurrentUser() user: User,
+  ): Promise<OrderWithItems> {
+    return this.ordersService.cancelOrder(id, user, dto);
   }
 
   @UseGuards(RolesGuard)

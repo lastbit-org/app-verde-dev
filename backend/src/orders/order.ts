@@ -10,6 +10,8 @@ export type Order = {
   status: OrderStatus;
   totalPrice: number;
   createdAt: string;
+  cancelReason: string | null;
+  cancelDetails: string | null;
 };
 
 export type OrderWithItems = Order & {

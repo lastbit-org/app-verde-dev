@@ -16,6 +16,7 @@ import type {
   OrderWithItems,
   UpdateOrderDto,
 } from './order';
+import type { CancelOrderDto } from './order.dto';
 import type { OrderItem, UpdateOrderItemDto } from './order-item';
 import { OrderItemEntity } from './order-item.entity';
 import { OrderEntity } from './order.entity';
@@ -119,6 +120,34 @@ export class OrdersService {
       order.payment = dto.payment;
     }
 
+    await this.orders.save(order);
+    return this.findOneOrder(id);
+  }
+
+  async cancelOrder(
+    id: number,
+    user: User,
+    dto: CancelOrderDto,
+  ): Promise<OrderWithItems> {
+    const current = await this.requireOrderAccess(id, user);
+
+    if (current.status === 'entregue') {
+      throw new BadRequestException('Delivered orders cannot be cancelled');
+    }
+
+    if (current.status === 'cancelado') {
+      throw new BadRequestException('Order is already cancelled');
+    }
+
+    const order = await this.orders.findOneBy({ id });
+    if (!order) {
+      throw new NotFoundException(`Order ${id} not found`);
+    }
+
+    await this.restoreOrderStock(id);
+    order.status = 'cancelado';
+    order.cancelReason = dto.reason;
+    order.cancelDetails = dto.details?.trim() ? dto.details.trim() : null;
     await this.orders.save(order);
     return this.findOneOrder(id);
   }
@@ -330,6 +359,8 @@ export class OrdersService {
       status: row.status,
       totalPrice: row.totalPrice,
       createdAt: row.createdAt,
+      cancelReason: row.cancelReason ?? null,
+      cancelDetails: row.cancelDetails ?? null,
     };
   }
 

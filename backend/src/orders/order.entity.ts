@@ -36,6 +36,12 @@ export class OrderEntity {
   @Column({ type: 'date', transformer: dateTransformer })
   createdAt: string;
 
+  @Column({ type: 'varchar', length: 80, nullable: true })
+  cancelReason: string | null;
+
+  @Column({ type: 'varchar', length: 400, nullable: true })
+  cancelDetails: string | null;
+
   @OneToMany(() => OrderItemEntity, (item) => item.order)
   items: OrderItemEntity[];
 }

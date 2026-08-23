@@ -1,5 +1,12 @@
 export type OrderStatus = 'preparando' | 'em trânsito' | 'entregue' | 'cancelado'
 
+export type CancelReason =
+  | 'changed_mind'
+  | 'wrong_item'
+  | 'too_slow'
+  | 'found_cheaper'
+  | 'other'
+
 export type OrderItem = {
   id: number
   orderId: number
@@ -19,6 +26,8 @@ export type Order = {
   totalPrice: number
   createdAt: string
   items: OrderItem[]
+  cancelReason: string | null
+  cancelDetails: string | null
 }
 
 export type CreateOrderLineInput = {
@@ -30,4 +39,9 @@ export type CreateOrderInput = {
   payment: string
   createdAt?: string
   items?: CreateOrderLineInput[]
+}
+
+export type CancelOrderInput = {
+  reason: CancelReason
+  details?: string
 }
