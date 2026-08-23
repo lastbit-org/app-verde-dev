@@ -5,11 +5,19 @@ import { updateUser } from '../../api/users'
 import type { AddressInput, UpdateUserInput } from '../../types/user'
 import { useSession } from '../auth/SessionProvider'
 
+type FormStatus = {
+  saving: boolean
+  error: string | null
+  message: string | null
+}
+
+const idle: FormStatus = { saving: false, error: null, message: null }
+
 export function useCurrentUser() {
   const session = useSession()
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [message, setMessage] = useState<string | null>(null)
+  const [personal, setPersonal] = useState<FormStatus>(idle)
+  const [address, setAddress] = useState<FormStatus>(idle)
+  const [password, setPassword] = useState<FormStatus>(idle)
 
   const user = session.user
 
@@ -19,28 +27,28 @@ export function useCurrentUser() {
         return false
       }
 
-      setSaving(true)
-      setError(null)
-      setMessage(null)
+      setPersonal({ saving: true, error: null, message: null })
 
       try {
         const next = await updateUser(user.id, payload)
         session.save(next)
-        setMessage('Dados pessoais atualizados.')
+        setPersonal({
+          saving: false,
+          error: null,
+          message: 'Dados pessoais atualizados.',
+        })
         return true
       } catch (err) {
+        let error = 'Não foi possível salvar. Confira se a API está no ar.'
         if (err instanceof ApiError && err.status === 409) {
-          setError('E-mail ou CPF já está em uso.')
+          error = 'E-mail ou CPF já está em uso.'
         } else if (err instanceof ApiError && err.status === 401) {
-          setError('Sessão expirada. Entre novamente.')
+          error = 'Sessão expirada. Entre novamente.'
         } else if (err instanceof ApiError && err.status === 400) {
-          setError('Confira nome, e-mail e CPF (11 dígitos).')
-        } else {
-          setError('Não foi possível salvar. Confira se a API está no ar.')
+          error = 'Confira nome, e-mail e CPF (11 dígitos).'
         }
+        setPersonal({ saving: false, error, message: null })
         return false
-      } finally {
-        setSaving(false)
       }
     },
     [session, user],
@@ -48,26 +56,26 @@ export function useCurrentUser() {
 
   const updateAddress = useCallback(
     async (payload: AddressInput) => {
-      setSaving(true)
-      setError(null)
-      setMessage(null)
+      setAddress({ saving: true, error: null, message: null })
 
       try {
         const next = await upsertAddress(payload)
         session.save(next)
-        setMessage('Endereço atualizado.')
+        setAddress({
+          saving: false,
+          error: null,
+          message: 'Endereço atualizado.',
+        })
         return true
       } catch (err) {
+        let error = 'Não foi possível salvar o endereço.'
         if (err instanceof ApiError && err.status === 401) {
-          setError('Sessão expirada. Entre novamente.')
+          error = 'Sessão expirada. Entre novamente.'
         } else if (err instanceof ApiError && err.status === 400) {
-          setError('Confira rua, CEP, número, cidade e UF.')
-        } else {
-          setError('Não foi possível salvar o endereço.')
+          error = 'Confira rua, CEP, número, cidade e UF.'
         }
+        setAddress({ saving: false, error, message: null })
         return false
-      } finally {
-        setSaving(false)
       }
     },
     [session],
@@ -75,25 +83,26 @@ export function useCurrentUser() {
 
   const updatePassword = useCallback(
     async (currentPassword: string, newPassword: string) => {
-      setSaving(true)
-      setError(null)
-      setMessage(null)
+      setPassword({ saving: true, error: null, message: null })
 
       try {
         await changePassword({ currentPassword, newPassword })
-        setMessage('Senha atualizada.')
+        setPassword({
+          saving: false,
+          error: null,
+          message: 'Senha atualizada.',
+        })
         return true
       } catch (err) {
+        let error = 'Não foi possível atualizar a senha.'
         if (err instanceof ApiError && err.status === 401) {
-          setError('Senha atual incorreta.')
+          error = 'Senha atual incorreta.'
         } else if (err instanceof ApiError && err.status === 400) {
-          setError('A nova senha precisa ter 8–72 caracteres, com letra e número.')
-        } else {
-          setError('Não foi possível atualizar a senha.')
+          error =
+            'A nova senha precisa ter 8–72 caracteres, com letra e número, e ser diferente da atual.'
         }
+        setPassword({ saving: false, error, message: null })
         return false
-      } finally {
-        setSaving(false)
       }
     },
     [],
@@ -106,9 +115,9 @@ export function useCurrentUser() {
   return {
     user,
     loading: session.loading,
-    saving,
-    error,
-    message,
+    personalStatus: personal,
+    addressStatus: address,
+    passwordStatus: password,
     updateProfile,
     updateAddress,
     updatePassword,

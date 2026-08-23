@@ -14,8 +14,7 @@ import { AppChrome, PageFooter } from '../layout/AppChrome'
 export function PaymentPage() {
   const { items, total, clear } = useCart()
   const { user, loading: sessionLoading } = useSession()
-  const { updateAddress, saving: savingAddress, error: addressError } =
-    useCurrentUser()
+  const { updateAddress, addressStatus } = useCurrentUser()
   const { addOrder } = useOrders(Boolean(user))
   const [paying, setPaying] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -93,8 +92,8 @@ export function PaymentPage() {
               amount={total}
               paying={paying}
               address={user.address}
-              savingAddress={savingAddress}
-              addressError={addressError}
+              savingAddress={addressStatus.saving}
+              addressError={addressStatus.error}
               onSaveAddress={updateAddress}
               onPay={(payment) => void pay(payment)}
             />

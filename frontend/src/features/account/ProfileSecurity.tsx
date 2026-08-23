@@ -14,11 +14,11 @@ export function ProfileSecurity({
   message = null,
   onSave,
 }: ProfileSecurityProps) {
-  const [mismatch, setMismatch] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setMismatch(false)
+    setFormError(null)
 
     if (!onSave) {
       return
@@ -30,7 +30,12 @@ export function ProfileSecurity({
     const confirmPassword = String(data.get('confirmPassword') ?? '')
 
     if (newPassword !== confirmPassword) {
-      setMismatch(true)
+      setFormError('A confirmação não confere.')
+      return
+    }
+
+    if (newPassword === currentPassword) {
+      setFormError('A nova senha precisa ser diferente da atual.')
       return
     }
 
@@ -41,7 +46,7 @@ export function ProfileSecurity({
   }
 
   return (
-    <div className="panel">
+    <div className="panel" id="seguranca">
       <Title as="h4">Segurança</Title>
       <form className="form" onSubmit={(event) => void handleSubmit(event)}>
         <Field label="Senha atual">
@@ -50,7 +55,6 @@ export function ProfileSecurity({
             name="currentPassword"
             autoComplete="current-password"
             placeholder="••••••••"
-            minLength={8}
             required
           />
         </Field>
@@ -76,7 +80,8 @@ export function ProfileSecurity({
         </Field>
 
         <Paragraph variant="muted">
-          A sessão fica em cookie httpOnly. A senha não é gravada no navegador.
+          Mínimo 8 caracteres, com letra e número. A senha não fica no
+          navegador.
         </Paragraph>
 
         <div className="row">
@@ -85,9 +90,7 @@ export function ProfileSecurity({
           </Button>
         </div>
       </form>
-      {mismatch ? (
-        <p className="status status-error">A confirmação não confere.</p>
-      ) : null}
+      {formError ? <p className="status status-error">{formError}</p> : null}
       {error ? <p className="status status-error">{error}</p> : null}
       {message ? <p className="status status-ok">{message}</p> : null}
     </div>

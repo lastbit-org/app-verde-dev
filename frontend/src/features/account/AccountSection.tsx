@@ -5,14 +5,20 @@ import { ProfileAddress } from './ProfileAddress'
 import { ProfilePersonal } from './ProfilePersonal'
 import { ProfileSecurity } from './ProfileSecurity'
 
+type FormStatus = {
+  saving?: boolean
+  error?: string | null
+  message?: string | null
+}
+
 type AccountSectionProps = {
   name?: string
   email?: string
   cpf?: string | null
   address?: Address | null
-  saving?: boolean
-  error?: string | null
-  message?: string | null
+  personalStatus?: FormStatus
+  addressStatus?: FormStatus
+  passwordStatus?: FormStatus
   onSavePersonal?: (payload: UpdateUserInput) => Promise<boolean>
   onSavePassword?: (
     currentPassword: string,
@@ -27,9 +33,9 @@ export function AccountSection({
   email,
   cpf,
   address,
-  saving,
-  error,
-  message,
+  personalStatus,
+  addressStatus,
+  passwordStatus,
   onSavePersonal,
   onSavePassword,
   onSaveAddress,
@@ -46,23 +52,23 @@ export function AccountSection({
           name={name}
           email={email}
           cpf={cpf}
-          saving={saving}
-          error={error}
-          message={message}
+          saving={personalStatus?.saving}
+          error={personalStatus?.error}
+          message={personalStatus?.message}
           onSave={onSavePersonal}
         />
         <ProfileAddress
           key={address?.id ?? 'new-address'}
           address={address}
-          saving={saving}
-          error={error}
-          message={message}
+          saving={addressStatus?.saving}
+          error={addressStatus?.error}
+          message={addressStatus?.message}
           onSave={onSaveAddress}
         />
         <ProfileSecurity
-          saving={saving}
-          error={error}
-          message={message}
+          saving={passwordStatus?.saving}
+          error={passwordStatus?.error}
+          message={passwordStatus?.message}
           onSave={onSavePassword}
         />
         {children}

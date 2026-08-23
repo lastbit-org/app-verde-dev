@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   NotFoundException,
   UnauthorizedException,
@@ -145,5 +146,11 @@ describe('UsersService', () => {
     expect(
       (await service.validateUser('ana@example.com', 'nova4567')).id,
     ).toBe(1);
+  });
+
+  it('rejects the same password', async () => {
+    await expect(
+      service.changePassword(1, 'verde123', 'verde123'),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });

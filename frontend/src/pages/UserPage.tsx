@@ -13,9 +13,9 @@ export function UserPage() {
   const {
     user,
     loading,
-    saving,
-    error,
-    message,
+    personalStatus,
+    addressStatus,
+    passwordStatus,
     updateProfile,
     updatePassword,
     updateAddress,
@@ -65,9 +65,9 @@ export function UserPage() {
               email={user.email}
               cpf={user.cpf}
               address={user.address}
-              saving={saving}
-              error={error}
-              message={message}
+              personalStatus={personalStatus}
+              addressStatus={addressStatus}
+              passwordStatus={passwordStatus}
               onSavePersonal={updateProfile}
               onSavePassword={updatePassword}
               onSaveAddress={updateAddress}

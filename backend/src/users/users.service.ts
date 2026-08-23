@@ -151,6 +151,12 @@ export class UsersService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (currentPassword === next) {
+      throw new BadRequestException(
+        'New password must be different from the current password',
+      );
+    }
+
     user.passwordHash = await hashPassword(next);
     await this.users.save(user);
   }
