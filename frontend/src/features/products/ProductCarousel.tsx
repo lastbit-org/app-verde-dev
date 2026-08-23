@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import type { Product } from '../../types/product'
+import { salePrice } from './price'
 
 type ProductCarouselProps = {
   products: Product[]
@@ -11,6 +12,19 @@ function formatPrice(price: number) {
     style: 'currency',
     currency: 'BRL',
   })
+}
+
+function Price({ product }: { product: Product }) {
+  const discount = product.discount ?? 0
+  if (discount > 0) {
+    return (
+      <span>
+        <s>{formatPrice(product.price)}</s>
+        {formatPrice(salePrice(product.price, discount))}
+      </span>
+    )
+  }
+  return <span>{formatPrice(product.price)}</span>
 }
 
 function Chevron({ dir }: { dir: 'left' | 'right' }) {
@@ -75,7 +89,7 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
             <img src={product.image.url} alt={product.image.name} />
             <div className="rail-card-body">
               <strong>{product.name}</strong>
-              <span>{formatPrice(product.price)}</span>
+              <Price product={product} />
             </div>
           </Link>
         ))}
