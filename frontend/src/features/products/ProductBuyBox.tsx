@@ -1,3 +1,4 @@
+import { CheckCircle } from '@phosphor-icons/react'
 import { Button } from '../../components'
 
 type ProductBuyBoxProps = {
@@ -17,26 +18,6 @@ function formatDay(value: string) {
     day: 'numeric',
     month: 'long',
   })
-}
-
-function Check() {
-  return (
-    <svg
-      className="buybox-icon"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="m8.5 12.2 2.3 2.3 4.7-5" />
-    </svg>
-  )
 }
 
 export function ProductBuyBox({
@@ -104,11 +85,11 @@ export function ProductBuyBox({
 
       <ul className="buybox-perks">
         <li>
-          <Check />
+          <CheckCircle className="buybox-icon" size={16} weight="regular" aria-hidden />
           Compra garantida
         </li>
         <li>
-          <Check />
+          <CheckCircle className="buybox-icon" size={16} weight="regular" aria-hidden />
           Devolução grátis
         </li>
       </ul>

@@ -181,10 +181,8 @@ a:hover {
 }
 
 .brand-mark {
-  width: 0.85rem;
-  height: 0.85rem;
-  border-radius: 999px;
-  background: var(--leaf);
+  flex-shrink: 0;
+  color: var(--leaf);
 }
 
 .menubar-nav {

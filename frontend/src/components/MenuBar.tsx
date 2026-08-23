@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { Leaf } from '@phosphor-icons/react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 type MenuBarProps = {
@@ -38,7 +39,7 @@ export function MenuBar({ brand }: MenuBarProps) {
   return (
     <header className="menubar">
       <Link className="brand" to="/">
-        <span className="brand-mark" aria-hidden="true" />
+        <Leaf className="brand-mark" size={20} weight="fill" aria-hidden />
         {brand}
       </Link>
       <form className="menubar-search" onSubmit={search} role="search">
