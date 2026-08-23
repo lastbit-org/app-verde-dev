@@ -15,18 +15,18 @@ Isso importa porque o frontend é SPA: o código roda no **navegador**. Esconder
 
 ## 2. Repositório hoje
 
-| Pasta | Papel |
-| --- | --- |
+| Pasta       | Papel                                                                                             |
+| ----------- | ------------------------------------------------------------------------------------------------- |
 | `frontend/` | Vite/React. `VITE_API_URL` hoje aponta para `http://localhost:3000`. Em GCP vira vazio ou `/api`. |
-| `backend/` | Nest. Cookie JWT, CSRF, CORS. `JWT_SECRET` com fallback só em não-produção. |
-| `database/` | Postgres local (Docker). Em GCP vira Cloud SQL Private IP. |
+| `backend/`  | Nest. Cookie JWT, CSRF, CORS. `JWT_SECRET` com fallback só em não-produção.                       |
+| `database/` | Postgres local (Docker). Em GCP vira Cloud SQL Private IP.                                        |
 
 Dois projetos GCP isolam IAM, secret e banco. Não misturar DEV e PRD no mesmo projeto.
 
-| Projeto GCP | Uso |
-| --- | --- |
+| Projeto GCP | Uso                                                  |
+| ----------- | ---------------------------------------------------- |
 | `verde-dev` | Integração. Hostname interno ou `dev.loja…` com IAP. |
-| `verde-prd` | Produção. Único IP público da loja. |
+| `verde-prd` | Produção. Único IP público da loja.                  |
 
 Conta de faturamento única; projetos separados.
 
@@ -37,9 +37,9 @@ feature/*  → PR →  dev   →  deploy automático DEV
 dev        → PR + review →  main  →  canary PRD → aprovação → 100%
 ```
 
-- **`feature/*`**: CI (lint, testes). Sem deploy (fase 1). Preview de PR é fase posterior.
-- **`dev`**: protegida com CI verde. Push/merge dispara DEV.
-- **`main`**: sem push direto. Review obrigatório. Merge dispara PRD.
+- `feature/*`: CI (lint, testes). Sem deploy (fase 1). Preview de PR é fase posterior.
+- `dev`: protegida com CI verde. Push/merge dispara DEV.
+- `main`: sem push direto. Review obrigatório. Merge dispara PRD.
 
 O mesmo commit (SHA) que passou em DEV é a imagem que sobe em PRD. Não rebuildar “para produção”.
 
@@ -76,45 +76,45 @@ Criar só o da fase atual. A lista completa é o destino, não o dia 1.
 
 ### Sempre (DEV e PRD, quando o ambiente existir)
 
-| Recurso | Para quê |
-| --- | --- |
-| Projeto GCP + APIs | `run`, `sqladmin`, `secretmanager`, `iam`, `artifactregistry`, `compute`, `servicenetworking` |
-| Artifact Registry | Imagem Docker do Nest (`verde/api`) |
-| Secret Manager | `JWT_SECRET`, `DATABASE_PASSWORD` (e depois SMTP) |
-| Service account de deploy | Usada pelo GitHub via Workload Identity Federation (sem JSON no repo) |
-| Workload Identity Pool + Provider | OIDC GitHub Actions → GCP |
+| Recurso                           | Para quê                                                                                      |
+| --------------------------------- | --------------------------------------------------------------------------------------------- |
+| Projeto GCP + APIs                | `run`, `sqladmin`, `secretmanager`, `iam`, `artifactregistry`, `compute`, `servicenetworking` |
+| Artifact Registry                 | Imagem Docker do Nest (`verde/api`)                                                           |
+| Secret Manager                    | `JWT_SECRET`, `DATABASE_PASSWORD` (e depois SMTP)                                             |
+| Service account de deploy         | Usada pelo GitHub via Workload Identity Federation (sem JSON no repo)                         |
+| Workload Identity Pool + Provider | OIDC GitHub Actions → GCP                                                                     |
 
 ### Rede (a partir da fase em que o Nest não é público)
 
-| Recurso | Para quê |
-| --- | --- |
-| VPC + subnet | Backend e SQL |
-| Private Service Connection | IP privado do Cloud SQL |
-| Serverless VPC Access (connector) | Cloud Run chega no SQL |
-| Cloud NAT | Nest sai para internet sem IP público |
-| Cloud DNS (opcional no começo) | `dev.` e apex da loja |
+| Recurso                           | Para quê                              |
+| --------------------------------- | ------------------------------------- |
+| VPC + subnet                      | Backend e SQL                         |
+| Private Service Connection        | IP privado do Cloud SQL               |
+| Serverless VPC Access (connector) | Cloud Run chega no SQL                |
+| Cloud NAT                         | Nest sai para internet sem IP público |
+| Cloud DNS (opcional no começo)    | `dev.` e apex da loja                 |
 
 ### App
 
-| Recurso | Para quê |
-| --- | --- |
-| Cloud Run `api` | Nest. DEV pode até ser `ingress=all` no começo; PRD `ingress=internal`. |
-| Cloud Storage bucket | `dist/` do Vite |
-| HTTPS Load Balancer | URL map `/*` bucket, `/api/*` Cloud Run |
-| Certificado gerenciado | HTTPS |
-| Cloud Armor | WAF + rate limit (login) — depois do LB existir |
-| Cloud SQL Postgres | Banco. DEV: `db-f1-micro`. PRD: HA quando o tráfego pedir. |
-| Cloud Run Job `migrate` (fase 3+) | TypeORM migrate na VPC, disparado pelo pipeline |
+| Recurso                           | Para quê                                                                |
+| --------------------------------- | ----------------------------------------------------------------------- |
+| Cloud Run `api`                   | Nest. DEV pode até ser `ingress=all` no começo; PRD `ingress=internal`. |
+| Cloud Storage bucket              | `dist/` do Vite                                                         |
+| HTTPS Load Balancer               | URL map `/*` bucket, `/api/*` Cloud Run                                 |
+| Certificado gerenciado            | HTTPS                                                                   |
+| Cloud Armor                       | WAF + rate limit (login) — depois do LB existir                         |
+| Cloud SQL Postgres                | Banco. DEV: `db-f1-micro`. PRD: HA quando o tráfego pedir.              |
+| Cloud Run Job `migrate` (fase 3+) | TypeORM migrate na VPC, disparado pelo pipeline                         |
 
 ### Depois (crescimento)
 
-| Recurso | Para quê |
-| --- | --- |
-| Memorystore Redis | Pub/sub in-process já não basta (várias instâncias) |
-| Pub/Sub | E-mail / “pedido atualizado” desacoplado do checkout |
-| IAP | Travar `dev.loja…` em contas Google da equipe |
-| Error Reporting / Monitoring | Alertar 5xx no canary |
-| VPC Service Controls | Perímetro em SQL + Secret Manager |
+| Recurso                      | Para quê                                             |
+| ---------------------------- | ---------------------------------------------------- |
+| Memorystore Redis            | Pub/sub in-process já não basta (várias instâncias)  |
+| Pub/Sub                      | E-mail / “pedido atualizado” desacoplado do checkout |
+| IAP                          | Travar `dev.loja…` em contas Google da equipe        |
+| Error Reporting / Monitoring | Alertar 5xx no canary                                |
+| VPC Service Controls         | Perímetro em SQL + Secret Manager                    |
 
 Não usar GKE no início. Cloud Run cobre Nest + canary (`update-traffic`).
 
@@ -122,19 +122,19 @@ Não usar GKE no início. Cloud Run cobre Nest + canary (`update-traffic`).
 
 Arquivos a criar quando for a hora (não precisam existir na fase 0):
 
-| Workflow | Gatilho | Faz |
-| --- | --- | --- |
-| `.github/workflows/ci.yml` | PR para `dev` ou `main` | `frontend`: build/`tsc`. `backend`: lint + jest. |
-| `.github/workflows/deploy-dev.yml` | Push em `dev` | Build imagem `$SHA`, push Registry, deploy Cloud Run DEV, upload SPA DEV, migrate DEV. |
-| `.github/workflows/deploy-prd.yml` | Push em `main` | Reusa a **mesma** imagem `$SHA`. Canary 10% → job `promote` com environment `production` (reviewer) → 100%. |
+| Workflow                           | Gatilho                 | Faz                                                                                                         |
+| ---------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/ci.yml`         | PR para `dev` ou `main` | `frontend`: build/`tsc`. `backend`: lint + jest.                                                            |
+| `.github/workflows/deploy-dev.yml` | Push em `dev`           | Build imagem `$SHA`, push Registry, deploy Cloud Run DEV, upload SPA DEV, migrate DEV.                      |
+| `.github/workflows/deploy-prd.yml` | Push em `main`          | Reusa a **mesma** imagem `$SHA`. Canary 10% → job `promote` com environment `production` (reviewer) → 100%. |
 
 Autenticação: **Workload Identity Federation**. Nunca `GCP_SA_KEY` em secret de longa duração.
 
 GitHub Environments:
 
-| Environment | Branch | Proteção |
-| --- | --- | --- |
-| `dev` | `dev` | opcional |
+| Environment  | Branch | Proteção                            |
+| ------------ | ------ | ----------------------------------- |
+| `dev`        | `dev`  | opcional                            |
 | `production` | `main` | required reviewers no job `promote` |
 
 Há dois “reviews”: o PR (código) e o Environment (cortar tráfego em PRD). Os dois valem.
@@ -208,7 +208,7 @@ Cada fase termina quando o critério de pronto estiver verdadeiro. Não pular pa
 
 Objetivo: `git push` em `dev` → URL que a equipe abre.
 
-**GCP (`verde-dev`)**
+**GCP (**`verde-dev`**)**
 
 1. Projeto + APIs.
 2. Artifact Registry.
@@ -253,7 +253,7 @@ Objetivo: browser só conhece `https://dev.loja…`.
 
 Objetivo: loja no ar, rollback = revisão anterior.
 
-**GCP (`verde-prd`)** — copiar fase 2, sem atalhos:
+**GCP (**`verde-prd`**)** — copiar fase 2, sem atalhos:
 
 - SQL sem IP público, sem `synchronize`.
 - `JWT_SECRET` forte (o app recusa `verde-dev-jwt` se `NODE_ENV=production`).
@@ -319,17 +319,17 @@ Canary não duplica SQL. Duplica revisão Cloud Run (barato). SQL HA em PRD é o
 
 ## 11. Decisões já tomadas (para não reabrir)
 
-| Tema | Decisão |
-| --- | --- |
-| Orquestrador | Cloud Run, não GKE no início |
-| Tráfego API PRD | Canary (fase 4); blue-green 100% na fase 3 |
-| Tráfego SPA | Blue-green |
-| Projetos | `verde-dev` e `verde-prd` |
-| Identidade CI | WIF, não JSON |
-| Imagem PRD | Mesmo SHA de DEV |
-| Banco PRD | Private IP, migrate expand/contract |
-| URL da API no browser | Same-origin `/api` a partir da fase 2 |
-| Pub/sub | Depois do checkout estável (fase 5) |
+| Tema                  | Decisão                                    |
+| --------------------- | ------------------------------------------ |
+| Orquestrador          | Cloud Run, não GKE no início               |
+| Tráfego API PRD       | Canary (fase 4); blue-green 100% na fase 3 |
+| Tráfego SPA           | Blue-green                                 |
+| Projetos              | `verde-dev` e `verde-prd`                  |
+| Identidade CI         | WIF, não JSON                              |
+| Imagem PRD            | Mesmo SHA de DEV                           |
+| Banco PRD             | Private IP, migrate expand/contract        |
+| URL da API no browser | Same-origin `/api` a partir da fase 2      |
+| Pub/sub               | Depois do checkout estável (fase 5)        |
 
 ## 12. Próxima ação concreta
 
