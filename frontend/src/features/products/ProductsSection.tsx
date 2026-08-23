@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Paragraph, Section } from '../../components'
 import { products as localPhotos } from '../../data/products'
 import { useCart } from '../cart/CartProvider'
@@ -7,7 +7,6 @@ import { ProductCarousel } from './ProductCarousel'
 import { ProductDescription } from './ProductDescription'
 import { ProductForm } from './ProductForm'
 import { ProductGallery } from './ProductGallery'
-import { ProductList } from './ProductList'
 import { ProductPayments } from './ProductPayments'
 import { ProductViewer } from './ProductViewer'
 import { productCopy } from './productCopy'
@@ -23,7 +22,6 @@ export function ProductsSection() {
     error,
     message,
     addProduct,
-    setDiscount,
   } = useProducts()
   const product = products[0]
   const copy = productCopy(product?.id ?? 1)
@@ -47,8 +45,8 @@ export function ProductsSection() {
   return (
     <Section id="galeria" eyebrow="Loja" title="Produtos">
       <Paragraph>
-        A galeria lista <code>GET /products</code>. O cadastro envia{' '}
-        <code>POST /products</code>.
+        A galeria lista os produtos da loja. A tabela completa está em{' '}
+        <Link to="/products">Produtos</Link>.
       </Paragraph>
 
       {loading ? <p className="status">Carregando produtos…</p> : null}
@@ -77,7 +75,9 @@ export function ProductsSection() {
 
       <ProductCarousel products={products} />
 
-      <ProductList products={products} onDiscount={setDiscount} />
+      <p className="row product-links">
+        <Link to="/products">Ver tabela de produtos</Link>
+      </p>
 
       <ProductGallery products={products} />
 

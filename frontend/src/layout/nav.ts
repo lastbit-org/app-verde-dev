@@ -1,6 +1,6 @@
 export const menu = [
   { href: '/#topo', label: 'Início' },
-  { href: '/#galeria', label: 'Produtos' },
+  { href: '/products', label: 'Produtos' },
   { href: '/cart', label: 'Carrinho' },
   { href: '/checkout', label: 'Pagamento' },
   { href: '/user', label: 'Conta' },
@@ -8,7 +8,7 @@ export const menu = [
 
 export const shortcuts = [
   { href: '/#topo', label: 'Início', icon: 'home' as const },
-  { href: '/#galeria', label: 'Loja', icon: 'shop' as const },
+  { href: '/products', label: 'Produtos', icon: 'shop' as const },
   { href: '/cart', label: 'Carrinho', icon: 'bag' as const },
   { href: '/user', label: 'Conta', icon: 'user' as const },
   { href: '/checkout', label: 'Pagamento', icon: 'nodes' as const },
