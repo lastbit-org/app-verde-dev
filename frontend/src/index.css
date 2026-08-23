@@ -194,7 +194,8 @@ a:hover {
   text-decoration: none;
 }
 
-.sidebar-item:hover {
+.sidebar-item:hover,
+.sidebar-item.is-active {
   color: var(--leaf);
   background: var(--moss);
 }

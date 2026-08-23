@@ -17,6 +17,6 @@ export const shortcuts = [
 export const account = [
   { href: '/user', label: 'Meu perfil', icon: 'user' as const },
   { href: '/user#pedidos', label: 'Pedidos', icon: 'package' as const },
-  { href: '/cart', label: 'Compras', icon: 'bag' as const },
+  { href: '/purchases', label: 'Compras', icon: 'receipt' as const },
   { href: '/#favoritos', label: 'Favoritos', icon: 'heart' as const },
 ]

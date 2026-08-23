@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 
 type SidebarIcon =
   | 'home'
@@ -9,6 +9,7 @@ type SidebarIcon =
   | 'package'
   | 'bag'
   | 'heart'
+  | 'receipt'
 
 type SidebarItem = {
   href: string
@@ -98,6 +99,15 @@ function Icon({ name }: { name: SidebarIcon }) {
     )
   }
 
+  if (name === 'receipt') {
+    return (
+      <svg {...common}>
+        <path d="M7 3h10v18l-2.2-1.3-2.3 1.3-2.3-1.3-2.2 1.3z" />
+        <path d="M10 8h4M10 12h4M10 16h2.5" />
+      </svg>
+    )
+  }
+
   return (
     <svg {...common}>
       <circle cx="6" cy="12" r="2" />
@@ -116,17 +126,31 @@ export function Sidebar({
   return (
     <aside className={`sidebar${side === 'end' ? ' sidebar-end' : ''}`}>
       <nav className="sidebar-nav" aria-label={label}>
-        {items.map((item) => (
-          <Link
-            key={item.href}
-            className="sidebar-item"
-            to={item.href}
-            aria-label={item.label}
-            title={item.label}
-          >
-            <Icon name={item.icon} />
-          </Link>
-        ))}
+        {items.map((item) =>
+          item.href.startsWith('/') && !item.href.includes('#') ? (
+            <NavLink
+              key={item.href}
+              className={({ isActive }) =>
+                isActive ? 'sidebar-item is-active' : 'sidebar-item'
+              }
+              to={item.href}
+              aria-label={item.label}
+              title={item.label}
+            >
+              <Icon name={item.icon} />
+            </NavLink>
+          ) : (
+            <Link
+              key={item.href}
+              className="sidebar-item"
+              to={item.href}
+              aria-label={item.label}
+              title={item.label}
+            >
+              <Icon name={item.icon} />
+            </Link>
+          ),
+        )}
       </nav>
     </aside>
   )

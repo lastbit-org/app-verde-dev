@@ -77,7 +77,7 @@ export function PaymentPage() {
             {createdId ? (
               <p className="status status-ok">
                 Pedido {createdId} registrado.{' '}
-                <Link to="/user#pedidos">Ver minhas compras</Link>
+                <Link to="/purchases">Ver minhas compras</Link>
               </p>
             ) : null}
           </>
