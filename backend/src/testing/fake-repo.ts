@@ -37,5 +37,12 @@ export function fakeRepo<T extends Row>(seed: T[] = []) {
       }
       return entity;
     }),
+    remove: jest.fn(async (entity: T) => {
+      const index = rows.findIndex((row) => row.id === entity.id);
+      if (index >= 0) {
+        rows.splice(index, 1);
+      }
+      return entity;
+    }),
   };
 }

@@ -1,12 +1,16 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { ApplyDiscountDto, CreateProductDto, Product } from './product';
 import { ProductsService } from './products.service';
 
@@ -35,5 +39,12 @@ export class ProductsController {
     @Body() dto: ApplyDiscountDto,
   ): Promise<Product> {
     return this.productsService.applyDiscount(id, dto.discount);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  @HttpCode(204)
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.productsService.remove(id);
   }
 }

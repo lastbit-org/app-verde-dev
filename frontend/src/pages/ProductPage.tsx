@@ -3,6 +3,7 @@ import { Eyebrow, Paragraph, Title } from '../components'
 import { useCart } from '../features/cart/CartProvider'
 import { ProductBuyBox } from '../features/products/ProductBuyBox'
 import { ProductCarousel } from '../features/products/ProductCarousel'
+import { ProductDelete } from '../features/products/ProductDelete'
 import { ProductDescription } from '../features/products/ProductDescription'
 import { ProductPayments } from '../features/products/ProductPayments'
 import { ProductViewer } from '../features/products/ProductViewer'
@@ -14,12 +15,22 @@ import { AppChrome, PageFooter } from '../layout/AppChrome'
 export function ProductPage() {
   const { id } = useParams()
   const productId = Number(id)
-  const { product, loading, error } = useProduct(productId)
+  const { product, loading, removing, error, remove } = useProduct(productId)
   const { products } = useProducts()
-  const { addProduct } = useCart()
+  const { addProduct, remove: removeFromCart } = useCart()
   const navigate = useNavigate()
   const copy = productCopy(productId)
   const related = products.filter((item) => item.id !== productId)
+
+  async function handleDelete() {
+    const ok = await remove()
+    if (!ok) {
+      return false
+    }
+    removeFromCart(productId)
+    navigate('/#galeria')
+    return true
+  }
 
   function addAndGo(to: '/cart' | '/checkout') {
     if (!product) {
@@ -46,7 +57,9 @@ export function ProductPage() {
         </section>
 
         {loading ? <p className="status">Carregando produto…</p> : null}
-        {error ? <p className="status status-error">{error}</p> : null}
+        {error && !product ? (
+          <p className="status status-error">{error}</p>
+        ) : null}
 
         {product ? (
           <>
@@ -78,6 +91,13 @@ export function ProductPage() {
               <Link to="/cart">Ver carrinho</Link>
               <Link to="/checkout">Ir ao pagamento</Link>
             </p>
+
+            <ProductDelete
+              name={product.name}
+              removing={removing}
+              error={error}
+              onDelete={handleDelete}
+            />
 
             {related.length > 0 ? (
               <section className="block">

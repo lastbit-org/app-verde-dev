@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
-import { getProduct } from '../../api/products'
+import { useCallback, useEffect, useState } from 'react'
+import { deleteProduct, getProduct } from '../../api/products'
+import { ApiError } from '../../api/client'
 import type { Product } from '../../types/product'
 
 export function useProduct(id: number) {
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
+  const [removing, setRemoving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -28,7 +30,9 @@ export function useProduct(id: number) {
       .catch(() => {
         if (!cancelled) {
           setProduct(null)
-          setError('Não foi possível carregar o produto. Confira se a API está no ar.')
+          setError(
+            'Não foi possível carregar o produto. Confira se a API está no ar.',
+          )
         }
       })
       .finally(() => {
@@ -42,5 +46,31 @@ export function useProduct(id: number) {
     }
   }, [id])
 
-  return { product, loading, error }
+  const remove = useCallback(async () => {
+    if (!Number.isInteger(id) || id < 1) {
+      return false
+    }
+
+    setRemoving(true)
+    setError(null)
+
+    try {
+      await deleteProduct(id)
+      setProduct(null)
+      return true
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        setError('Entre para excluir esta peça.')
+      } else if (err instanceof ApiError && err.status === 404) {
+        setError('Esta peça já não está no catálogo.')
+      } else {
+        setError('Não foi possível excluir. Confira se a API está no ar.')
+      }
+      return false
+    } finally {
+      setRemoving(false)
+    }
+  }, [id])
+
+  return { product, loading, removing, error, remove }
 }

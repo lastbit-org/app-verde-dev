@@ -59,6 +59,16 @@ export class ProductsService {
     return this.toProduct(await this.products.save(product));
   }
 
+  async remove(id: number): Promise<void> {
+    const product = await this.products.findOneBy({ id });
+
+    if (!product) {
+      throw new NotFoundException(`Product ${id} not found`);
+    }
+
+    await this.products.remove(product);
+  }
+
   private toProduct(row: ProductEntity): Product {
     return {
       id: row.id,

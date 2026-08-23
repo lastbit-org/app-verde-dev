@@ -22,3 +22,7 @@ export function applyProductDiscount(id: number, discount: number) {
 export function getProduct(id: number) {
   return request<Product>(`/products/${id}`)
 }
+
+export function deleteProduct(id: number) {
+  return request<null>(`/products/${id}`, { method: 'DELETE' })
+}

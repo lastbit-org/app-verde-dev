@@ -814,6 +814,18 @@ code {
   gap: 1.15rem;
 }
 
+.product-delete {
+  margin-top: 1.4rem;
+  margin-bottom: 2rem;
+  padding-top: 1.15rem;
+  padding-bottom: 0.35rem;
+  border-top: 1px solid var(--line);
+}
+
+.product-delete p {
+  max-width: 36rem;
+}
+
 .payments-go {
   margin: 0.85rem 0 0;
   font-size: 0.85rem;

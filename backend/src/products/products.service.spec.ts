@@ -97,4 +97,14 @@ describe('ProductsService', () => {
       BadRequestException,
     );
   });
+
+  it('deletes a product', async () => {
+    await service.remove(2);
+    expect(await service.findAll()).toHaveLength(4);
+    await expect(service.findOne(2)).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('throws when deleting a missing product', async () => {
+    await expect(service.remove(99)).rejects.toBeInstanceOf(NotFoundException);
+  });
 });
