@@ -7,8 +7,10 @@ import {
   Section,
   Title,
 } from '../../components'
+import { storeCategories } from '../../data/categories'
 import { products as localPhotos } from '../../data/products'
 import { useCart } from '../cart/CartProvider'
+import { CategoryGallery } from './CategoryGallery'
 import { ProductCarousel } from '../products/ProductCarousel'
 import { ProductGallery } from '../products/ProductGallery'
 import { salePrice } from '../products/price'
@@ -122,25 +124,32 @@ export function HomeStore() {
 
       <Section id="categorias" eyebrow="Navegar" title="Categorias">
         <Paragraph>
-          Atalhos da vitrine. Cada um leva a um recorte da loja.
+          Recortes da vitrine em hardware selecionado. Cada card abre o
+          departamento.
         </Paragraph>
+        <CategoryGallery categories={storeCategories} />
         <p className="row product-links">
-          <Link to="/#galeria">Todas as peças</Link>
-          <Link to="/#promocoes">Em promoção</Link>
-          <Link to="/#favoritos">Escolhas da casa</Link>
+          <Link to="/categories">Todas as categorias</Link>
+          <Link to="/promocoes">Em promoção</Link>
         </p>
       </Section>
 
       {deals.length > 0 ? (
         <Section id="promocoes" eyebrow="Ofertas" title="Promoções">
           <Paragraph>
-            Peças com desconto agora. O card abre o detalhe do produto.
+            Só itens com desconto. O card abre o detalhe do produto.
           </Paragraph>
           <ProductGallery products={deals} />
+          <p className="row product-links">
+            <Link to="/promocoes">Ver todas as promoções</Link>
+          </p>
         </Section>
       ) : (
         <Section id="promocoes" eyebrow="Ofertas" title="Promoções">
-          <Paragraph>Nenhuma promoção ativa no momento.</Paragraph>
+          <Paragraph>
+            Nenhuma promoção ativa no momento.{' '}
+            <Link to="/promocoes">Abrir a página de ofertas</Link>
+          </Paragraph>
         </Section>
       )}
 

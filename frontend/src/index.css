@@ -773,6 +773,14 @@ input[type="radio"] {
   margin-right: 0.35rem;
 }
 
+.category-gallery {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.category-gallery img {
+  aspect-ratio: 1 / 1;
+}
+
 .badge {
   display: inline-block;
   margin: 0 0 0.7rem;

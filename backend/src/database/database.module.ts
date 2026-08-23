@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderItemEntity } from '../orders/order-item.entity';
+import { OrderCancellationEntity } from '../orders/order-cancellation.entity';
 import { OrderEntity } from '../orders/order.entity';
 import { ProductEntity } from '../products/product.entity';
 import { AddressEntity } from '../addresses/address.entity';
@@ -30,6 +31,7 @@ import { SeedService } from './seed.service';
       ProductEntity,
       OrderEntity,
       OrderItemEntity,
+      OrderCancellationEntity,
       AddressEntity,
       FavoriteEntity,
     ]),

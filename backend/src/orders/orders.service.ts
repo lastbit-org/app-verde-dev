@@ -19,6 +19,7 @@ import type {
 import type { CancelOrderDto } from './order.dto';
 import type { OrderItem, UpdateOrderItemDto } from './order-item';
 import { OrderItemEntity } from './order-item.entity';
+import { OrderCancellationEntity } from './order-cancellation.entity';
 import { OrderEntity } from './order.entity';
 
 const STATUSES: OrderStatus[] = [
@@ -37,6 +38,8 @@ export class OrdersService {
     private readonly items: Repository<OrderItemEntity>,
     @InjectRepository(ProductEntity)
     private readonly products: Repository<ProductEntity>,
+    @InjectRepository(OrderCancellationEntity)
+    private readonly cancellations: Repository<OrderCancellationEntity>,
   ) {}
 
   async findAllOrders(userId?: number): Promise<OrderWithItems[]> {
@@ -149,7 +152,43 @@ export class OrdersService {
     order.cancelReason = dto.reason;
     order.cancelDetails = dto.details?.trim() ? dto.details.trim() : null;
     await this.orders.save(order);
+
+    const existing = await this.cancellations.findOneBy({ orderId: id });
+    if (existing) {
+      existing.reason = dto.reason;
+      existing.details = order.cancelDetails;
+      existing.userId = user.id;
+      await this.cancellations.save(existing);
+    } else {
+      await this.cancellations.save(
+        this.cancellations.create({
+          orderId: id,
+          userId: user.id,
+          reason: dto.reason,
+          details: order.cancelDetails,
+        }),
+      );
+    }
+
     return this.findOneOrder(id);
+  }
+
+  async findCancellation(id: number, user: User) {
+    await this.requireOrderAccess(id, user);
+    const row = await this.cancellations.findOneBy({ orderId: id });
+
+    if (!row) {
+      throw new NotFoundException(`Cancellation for order ${id} not found`);
+    }
+
+    return {
+      id: row.id,
+      orderId: row.orderId,
+      userId: row.userId,
+      reason: row.reason,
+      details: row.details,
+      createdAt: row.createdAt,
+    };
   }
 
   async findAllItems(orderId: number | undefined, user: User): Promise<OrderItem[]> {

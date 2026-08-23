@@ -32,6 +32,7 @@ export class SeedService implements OnModuleInit {
       await this.ensurePasswords();
       await this.ensureDemoRoles();
       await this.ensureDemoAddress();
+      await this.ensureDemoDiscounts();
       return;
     }
 
@@ -82,7 +83,7 @@ export class SeedService implements OnModuleInit {
         id: 2,
         name: 'Vaso de cerâmica artesanal',
         price: 186,
-        discount: 0,
+        discount: 15,
         stock: 8,
         imageUrl: 'https://picsum.photos/seed/vaso/600/800',
         imageName: 'vaso-ceramica.jpg',
@@ -91,7 +92,7 @@ export class SeedService implements OnModuleInit {
         id: 3,
         name: 'Kit de cuidados',
         price: 92,
-        discount: 0,
+        discount: 10,
         stock: 24,
         imageUrl: 'https://picsum.photos/seed/cuidados/600/800',
         imageName: 'kit-cuidados.jpg',
@@ -109,7 +110,7 @@ export class SeedService implements OnModuleInit {
         id: 5,
         name: 'Composição sobre linho',
         price: 210,
-        discount: 0,
+        discount: 20,
         stock: 4,
         imageUrl: 'https://picsum.photos/seed/linho/600/800',
         imageName: 'composicao-linho.jpg',
@@ -191,6 +192,7 @@ export class SeedService implements OnModuleInit {
     await this.resetSequence('order_items');
     await this.resetSequence('addresses');
     await this.resetSequence('favorites');
+    await this.resetSequence('order_cancellations');
 
     this.logger.log('Database seeded.');
   }
@@ -246,6 +248,23 @@ export class SeedService implements OnModuleInit {
     );
     ana.addressId = address.id;
     await this.users.save(ana);
+  }
+
+  private async ensureDemoDiscounts() {
+    const rows = await this.products.find();
+    if (rows.length === 0 || rows.some((product) => (product.discount ?? 0) > 0)) {
+      return;
+    }
+
+    const discounts: Record<number, number> = { 2: 15, 3: 10, 5: 20 };
+
+    for (const product of rows) {
+      const discount = discounts[product.id];
+      if (discount) {
+        product.discount = discount;
+        await this.products.save(product);
+      }
+    }
   }
 
   private async resetSequence(table: string) {

@@ -33,7 +33,7 @@ export function Sidebar({
           ) : item.href.startsWith('/') && !item.href.includes('#') ? (
             <NavLink
               key={`${item.href}-${item.label}`}
-              end
+              end={item.href !== '/categories'}
               className={({ isActive }) =>
                 isActive ? 'sidebar-item is-active' : 'sidebar-item'
               }

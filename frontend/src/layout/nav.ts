@@ -13,8 +13,8 @@ export type NavItem = {
 
 export const storeNav: NavItem[] = [
   { href: '/', label: 'Início', icon: 'home' },
-  { href: '/#categorias', label: 'Categorias', icon: 'grid' },
-  { href: '/#promocoes', label: 'Promoções', icon: 'tag' },
+  { href: '/categories', label: 'Categorias', icon: 'grid' },
+  { href: '/promocoes', label: 'Promoções', icon: 'tag' },
 ]
 
 export const accountNav: NavItem[] = [

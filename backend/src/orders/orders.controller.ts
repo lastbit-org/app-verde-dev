@@ -32,6 +32,14 @@ export class OrdersController {
     return this.ordersService.findAllOrders(user.id);
   }
 
+  @Get(':id/cancellation')
+  cancellation(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User,
+  ) {
+    return this.ordersService.findCancellation(id, user);
+  }
+
   @Get(':id')
   findOne(
     @Param('id', ParseIntPipe) id: number,

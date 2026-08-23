@@ -26,6 +26,7 @@ const bruno: User = {
 describe('OrdersService', () => {
   let service: OrdersService;
   let products: ReturnType<typeof fakeRepo>;
+  let cancellations: ReturnType<typeof fakeRepo>;
 
   beforeEach(() => {
     const orders = fakeRepo([
@@ -133,10 +134,12 @@ describe('OrdersService', () => {
         imageName: 'planta-interior.jpg',
       },
     ]);
+    cancellations = fakeRepo();
     service = new OrdersService(
       orders as never,
       items as never,
       products as never,
+      cancellations as never,
     );
   });
 
@@ -227,7 +230,15 @@ describe('OrdersService', () => {
 
     expect(cancelled.status).toBe('cancelado');
     expect(cancelled.cancelReason).toBe('changed_mind');
+    expect(cancelled.cancelDetails).toBe('Não preciso mais');
     expect(products.rows.find((row) => row.id === 4)?.stock).toBe(7);
+
+    const saved = await service.findCancellation(3, bruno);
+    expect(saved.orderId).toBe(3);
+    expect(saved.userId).toBe(bruno.id);
+    expect(saved.reason).toBe('changed_mind');
+    expect(saved.details).toBe('Não preciso mais');
+    expect(cancellations.rows).toHaveLength(1);
   });
 
   it('rejects cancelling a delivered order', async () => {

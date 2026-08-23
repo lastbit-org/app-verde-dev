@@ -1,8 +1,11 @@
 import { Route, Routes } from 'react-router-dom'
 import { RequireAuth } from './features/auth/RequireAuth'
 import { CancelOrderPage } from './pages/CancelOrderPage'
+import { CategoriesPage } from './pages/CategoriesPage'
+import { CategoryPage } from './pages/CategoryPage'
 import { FavoritesPage } from './pages/FavoritesPage'
 import { LoginPage } from './pages/LoginPage'
+import { PromotionsPage } from './pages/PromotionsPage'
 import { OrdersTablePage } from './pages/OrdersTablePage'
 import { PaymentPage } from './pages/PaymentPage'
 import { ProductPage } from './pages/ProductPage'
@@ -19,6 +22,9 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<StorePage />} />
+      <Route path="/categories/:slug" element={<CategoryPage />} />
+      <Route path="/categories" element={<CategoriesPage />} />
+      <Route path="/promocoes" element={<PromotionsPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route
         path="/user"

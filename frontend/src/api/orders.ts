@@ -28,6 +28,17 @@ export function cancelOrder(id: number, payload: CancelOrderInput) {
   })
 }
 
+export function getOrderCancellation(id: number) {
+  return request<{
+    id: number
+    orderId: number
+    userId: number
+    reason: string
+    details: string | null
+    createdAt: string
+  }>(`/orders/${id}/cancellation`)
+}
+
 export function createOrderInput(
   items: CreateOrderLineInput[],
   payment: string,
