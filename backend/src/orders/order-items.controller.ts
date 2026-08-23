@@ -8,7 +8,9 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type {
   ApplyItemDiscountDto,
   CreateOrderItemDto,
@@ -17,6 +19,7 @@ import type {
 } from './order-item';
 import { OrdersService } from './orders.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('order-items')
 export class OrderItemsController {
   constructor(private readonly ordersService: OrdersService) {}

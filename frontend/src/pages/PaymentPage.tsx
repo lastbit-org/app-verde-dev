@@ -10,13 +10,18 @@ import { AppChrome, PageFooter } from '../layout/AppChrome'
 
 export function PaymentPage() {
   const { items, total } = useCart()
-  const { user } = useSession()
-  const { addOrder } = useOrders()
+  const { user, loading: sessionLoading } = useSession()
+  const { addOrder } = useOrders(Boolean(user))
   const [paying, setPaying] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [createdId, setCreatedId] = useState<string | null>(null)
 
   async function pay(payment: string) {
+    if (!user) {
+      setError('Entre na conta para registrar o pedido.')
+      return
+    }
+
     setPaying(true)
     setError(null)
 
@@ -31,7 +36,7 @@ export function PaymentPage() {
             discount: 0,
           })),
           payment,
-          user?.id ?? 1,
+          user.id,
         ),
       )
       setCreatedId(order.orderId)
@@ -64,6 +69,13 @@ export function PaymentPage() {
             <Link to="/cart">Voltar ao carrinho</Link>
             {' · '}
             <Link to="/#galeria">Ver produtos</Link>
+          </p>
+        ) : sessionLoading ? (
+          <p className="status">Carregando sessão…</p>
+        ) : !user ? (
+          <p className="status">
+            Entre para concluir o pagamento.{' '}
+            <Link to="/login">Ir ao login</Link>
           </p>
         ) : (
           <>

@@ -5,6 +5,8 @@ import { OrderItemEntity } from '../orders/order-item.entity';
 import { OrderEntity } from '../orders/order.entity';
 import { ProductEntity } from '../products/product.entity';
 import { UserEntity } from '../users/user.entity';
+import { DEMO_PASSWORD } from '../auth/auth.constants';
+import { hashPassword } from '../users/password';
 
 @Injectable()
 export class SeedService implements OnModuleInit {
@@ -24,12 +26,15 @@ export class SeedService implements OnModuleInit {
 
   async onModuleInit() {
     if ((await this.users.count()) > 0) {
+      await this.ensurePasswords();
       return;
     }
 
+    const passwordHash = await hashPassword(DEMO_PASSWORD);
+
     await this.users.save([
-      { id: 1, name: 'Ana Silva', email: 'ana@example.com' },
-      { id: 2, name: 'Bruno Costa', email: 'bruno@example.com' },
+      { id: 1, name: 'Ana Silva', email: 'ana@example.com', passwordHash },
+      { id: 2, name: 'Bruno Costa', email: 'bruno@example.com', passwordHash },
     ]);
 
     await this.products.save([
@@ -150,6 +155,24 @@ export class SeedService implements OnModuleInit {
     await this.resetSequence('order_items');
 
     this.logger.log('Database seeded.');
+  }
+
+  private async ensurePasswords() {
+    const rows = await this.users.find();
+    const missing = rows.filter((user) => !user.passwordHash);
+
+    if (missing.length === 0) {
+      return;
+    }
+
+    const passwordHash = await hashPassword(DEMO_PASSWORD);
+
+    for (const user of missing) {
+      user.passwordHash = passwordHash;
+      await this.users.save(user);
+    }
+
+    this.logger.log(`Password hash set for ${missing.length} existing user(s).`);
   }
 
   private async resetSequence(table: string) {

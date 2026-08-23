@@ -15,7 +15,7 @@ function matches(query: string, value: string | number) {
 
 export function PurchasesPage() {
   const { user, loading: userLoading } = useCurrentUser()
-  const { orders, loading: ordersLoading, error } = useOrders()
+  const { orders, loading: ordersLoading, error } = useOrders(Boolean(user))
   const [query, setQuery] = useState('')
   const needle = query.trim().toLowerCase()
 

@@ -1,13 +1,17 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Param,
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import type { CreateUserDto, LoginDto, UpdateUserDto, User } from './user';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import type { CreateUserDto, UpdateUserDto, User } from './user';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -29,16 +33,17 @@ export class UsersController {
     return this.usersService.create(dto);
   }
 
-  @Post('login')
-  login(@Body() dto: LoginDto): Promise<User> {
-    return this.usersService.findByEmail(dto.email);
-  }
-
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateUserDto,
+    @CurrentUser() user: User,
   ): Promise<User> {
+    if (user.id !== id) {
+      throw new ForbiddenException();
+    }
+
     return this.usersService.update(id, dto);
   }
 }

@@ -8,6 +8,7 @@ export interface User {
 export interface CreateUserDto {
   name: string;
   email: string;
+  password: string;
   cpf?: string;
 }
 
@@ -19,4 +20,10 @@ export interface UpdateUserDto {
 
 export interface LoginDto {
   email: string;
+  password: string;
+}
+
+export interface ChangePasswordDto {
+  currentPassword: string;
+  newPassword: string;
 }

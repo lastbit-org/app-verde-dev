@@ -13,6 +13,10 @@ type AccountSectionProps = {
   error?: string | null
   message?: string | null
   onSavePersonal?: (payload: UpdateUserInput) => Promise<boolean>
+  onSavePassword?: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<boolean>
   children?: ReactNode
 }
 
@@ -24,6 +28,7 @@ export function AccountSection({
   error,
   message,
   onSavePersonal,
+  onSavePassword,
   children,
 }: AccountSectionProps) {
   return (
@@ -43,7 +48,12 @@ export function AccountSection({
           onSave={onSavePersonal}
         />
         <ProfileAddress />
-        <ProfileSecurity />
+        <ProfileSecurity
+          saving={saving}
+          error={error}
+          message={message}
+          onSave={onSavePassword}
+        />
         {children}
       </div>
     </Section>

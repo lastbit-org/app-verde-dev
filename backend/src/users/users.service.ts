@@ -8,6 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { assertCpf, formatCpf, normalizeCpf } from './cpf';
+import { hashPassword, verifyPassword } from './password';
 import type { CreateUserDto, UpdateUserDto, User } from './user';
 import { UserEntity } from './user.entity';
 
@@ -27,10 +28,16 @@ export class UsersService {
     return this.toUser(await this.requireUser(id));
   }
 
-  async findByEmail(email: string): Promise<User> {
+  async validateUser(email: string, password: string): Promise<User> {
     const user = await this.findByEmailRow(email);
 
-    if (!user) {
+    if (!user?.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const matches = await verifyPassword(password, user.passwordHash);
+
+    if (!matches) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -38,6 +45,7 @@ export class UsersService {
   }
 
   async create(dto: CreateUserDto): Promise<User> {
+    const password = this.requirePassword(dto.password);
     const taken = await this.findByEmailRow(dto.email);
 
     if (taken) {
@@ -54,6 +62,7 @@ export class UsersService {
       this.users.create({
         name: dto.name.trim(),
         email: dto.email.trim(),
+        passwordHash: await hashPassword(password),
         cpf,
       }),
     );
@@ -86,6 +95,42 @@ export class UsersService {
     user.cpf = cpf;
 
     return this.toUser(await this.users.save(user));
+  }
+
+  async changePassword(
+    id: number,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.requireUser(id);
+    const next = this.requirePassword(newPassword);
+
+    if (!user.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const matches = await verifyPassword(currentPassword, user.passwordHash);
+
+    if (!matches) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    user.passwordHash = await hashPassword(next);
+    await this.users.save(user);
+  }
+
+  private requirePassword(password: string) {
+    if (
+      typeof password !== 'string' ||
+      password.length < 6 ||
+      password.length > 72
+    ) {
+      throw new BadRequestException(
+        'Password must be between 6 and 72 characters',
+      );
+    }
+
+    return password;
   }
 
   private async requireUser(id: number) {

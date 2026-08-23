@@ -11,8 +11,9 @@ export function LoginPage() {
           <Eyebrow>Acesso</Eyebrow>
           <Title as="h1">Entrar ou criar conta.</Title>
           <Paragraph variant="lead">
-            Cadastro envia nome e e-mail para <code>POST /users</code>. Login
-            confere o e-mail em <code>POST /users/login</code>.
+            Entre com e-mail e senha. A sessão fica num cookie httpOnly, não no
+            navegador. Contas de exemplo: ana@example.com e bruno@example.com,
+            senha verde123.
           </Paragraph>
         </section>
 

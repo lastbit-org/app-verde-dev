@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -36,9 +37,22 @@ export class OrdersService {
     private readonly items: Repository<OrderItemEntity>,
   ) {}
 
-  async findAllOrders(): Promise<OrderWithItems[]> {
-    const rows = await this.orders.find({ order: { id: 'ASC' } });
+  async findAllOrders(userId?: number): Promise<OrderWithItems[]> {
+    const rows = await this.orders.find({
+      ...(userId === undefined ? {} : { where: { userId } }),
+      order: { id: 'ASC' },
+    });
     return Promise.all(rows.map((row) => this.withItems(row)));
+  }
+
+  async requireOwnedOrder(id: number, userId: number): Promise<OrderWithItems> {
+    const order = await this.findOneOrder(id);
+
+    if (order.userId !== userId) {
+      throw new ForbiddenException();
+    }
+
+    return order;
   }
 
   async findOneOrder(id: number): Promise<OrderWithItems> {

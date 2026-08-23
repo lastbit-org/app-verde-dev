@@ -1,7 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { Button, Eyebrow, Paragraph, Title } from '../components'
 import { AccountSection } from '../features/account/AccountSection'
-import { useSession } from '../features/auth/SessionProvider'
 import { useOrders } from '../features/orders/useOrders'
 import { UserCard } from '../features/user/UserCard'
 import { UserOrders } from '../features/user/UserOrders'
@@ -13,21 +12,22 @@ import { AppChrome, PageFooter } from '../layout/AppChrome'
 export function UserPage() {
   const {
     user,
-    isDemo,
     loading,
     saving,
     error,
     message,
     updateProfile,
+    updatePassword,
     clear,
   } = useCurrentUser()
-  const session = useSession()
-  const { orders, loading: ordersLoading, error: ordersError } = useOrders()
+  const { orders, loading: ordersLoading, error: ordersError } = useOrders(
+    Boolean(user),
+  )
   const navigate = useNavigate()
   const mine = user ? orders.filter((order) => order.userId === user.id) : []
 
-  function signOut() {
-    clear()
+  async function signOut() {
+    await clear()
     navigate('/login')
   }
 
@@ -45,12 +45,17 @@ export function UserPage() {
         </section>
 
         {loading ? <p className="status">Carregando usuário…</p> : null}
-        {error && !user ? <p className="status status-error">{error}</p> : null}
+        {!loading && !user ? (
+          <p className="status">
+            Entre para ver a conta.{' '}
+            <Link to="/login">Ir ao login</Link>
+          </p>
+        ) : null}
 
         {user ? (
           <>
             <div className="user-head">
-              <UserCard user={user} isDemo={isDemo} />
+              <UserCard user={user} isDemo={false} />
               <UserStats orders={mine} />
             </div>
 
@@ -62,6 +67,7 @@ export function UserPage() {
               error={error}
               message={message}
               onSavePersonal={updateProfile}
+              onSavePassword={updatePassword}
             >
               <UserPreferences />
             </AccountSection>
@@ -73,13 +79,9 @@ export function UserPage() {
             />
 
             <div className="row user-actions">
-              {session.user ? (
-                <Button variant="ghost" onClick={signOut}>
-                  Sair
-                </Button>
-              ) : (
-                <Link to="/login">Entrar ou criar conta</Link>
-              )}
+              <Button variant="ghost" onClick={() => void signOut()}>
+                Sair
+              </Button>
             </div>
           </>
         ) : null}

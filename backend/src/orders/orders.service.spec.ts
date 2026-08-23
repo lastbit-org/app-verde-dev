@@ -85,6 +85,12 @@ describe('OrdersService', () => {
     expect(orders[0].totalPrice).toBe(432);
   });
 
+  it('lists orders for a single user', async () => {
+    const orders = await service.findAllOrders(1);
+    expect(orders).toHaveLength(2);
+    expect(orders.every((order) => order.userId === 1)).toBe(true);
+  });
+
   it('returns an order by id', async () => {
     const order = await service.findOneOrder(2);
 

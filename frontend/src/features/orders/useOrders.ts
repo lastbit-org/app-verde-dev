@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { createOrder, getOrders } from '../../api/orders'
 import type { CreateOrderInput, Order } from '../../types/order'
 
-export function useOrders() {
+export function useOrders(enabled = true) {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -23,8 +23,15 @@ export function useOrders() {
   }, [])
 
   useEffect(() => {
+    if (!enabled) {
+      setOrders([])
+      setLoading(false)
+      setError(null)
+      return
+    }
+
     void loadOrders()
-  }, [loadOrders])
+  }, [enabled, loadOrders])
 
   const addOrder = useCallback(async (payload: CreateOrderInput) => {
     const order = await createOrder(payload)

@@ -28,10 +28,14 @@ export function useAuth() {
       try {
         const user =
           mode === 'login'
-            ? await loginUser({ email: payload.email })
+            ? await loginUser({
+                email: payload.email,
+                password: payload.password,
+              })
             : await signupUser({
                 name: payload.name,
                 email: payload.email,
+                password: payload.password,
               })
 
         save(user)
@@ -41,7 +45,9 @@ export function useAuth() {
         if (err instanceof ApiError && err.status === 409) {
           setError('Este e-mail já está em uso.')
         } else if (err instanceof ApiError && err.status === 401) {
-          setError('E-mail não encontrado.')
+          setError('E-mail ou senha inválidos.')
+        } else if (err instanceof ApiError && err.status === 400) {
+          setError('Confira nome, e-mail e senha (mínimo 6 caracteres).')
         } else {
           setError('Não foi possível concluir. Confira se a API está no ar.')
         }

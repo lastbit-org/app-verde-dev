@@ -6,13 +6,32 @@ import {
 import { fakeRepo } from '../testing/fake-repo';
 import { UsersService } from './users.service';
 
+jest.mock('./password', () => ({
+  hashPassword: jest.fn(async (plain: string) => `hashed:${plain}`),
+  verifyPassword: jest.fn(
+    async (plain: string, hash: string) => hash === `hashed:${plain}`,
+  ),
+}));
+
 describe('UsersService', () => {
   let service: UsersService;
 
   beforeEach(() => {
     const users = fakeRepo([
-      { id: 1, name: 'Ana Silva', email: 'ana@example.com', cpf: '12345678900' },
-      { id: 2, name: 'Bruno Costa', email: 'bruno@example.com', cpf: null },
+      {
+        id: 1,
+        name: 'Ana Silva',
+        email: 'ana@example.com',
+        cpf: '12345678900',
+        passwordHash: 'hashed:verde123',
+      },
+      {
+        id: 2,
+        name: 'Bruno Costa',
+        email: 'bruno@example.com',
+        cpf: null,
+        passwordHash: 'hashed:verde123',
+      },
     ]);
     service = new UsersService(users as never);
   });
@@ -38,6 +57,7 @@ describe('UsersService', () => {
     const user = await service.create({
       name: 'Carla Souza',
       email: 'carla@example.com',
+      password: 'secret1',
     });
 
     expect(user).toEqual({
@@ -51,20 +71,30 @@ describe('UsersService', () => {
 
   it('rejects a duplicated email', async () => {
     await expect(
-      service.create({ name: 'Ana', email: 'ana@example.com' }),
+      service.create({
+        name: 'Ana',
+        email: 'ana@example.com',
+        password: 'secret1',
+      }),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
-  it('logs in by email', async () => {
-    expect((await service.findByEmail('ana@example.com')).name).toBe(
-      'Ana Silva',
-    );
+  it('logs in with email and password', async () => {
+    expect(
+      (await service.validateUser('ana@example.com', 'verde123')).name,
+    ).toBe('Ana Silva');
   });
 
   it('rejects an unknown email', async () => {
-    await expect(service.findByEmail('nina.v@example.com')).rejects.toBeInstanceOf(
-      UnauthorizedException,
-    );
+    await expect(
+      service.validateUser('nina.v@example.com', 'verde123'),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('rejects a wrong password', async () => {
+    await expect(
+      service.validateUser('ana@example.com', 'wrong-password'),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
   it('updates name, email and cpf', async () => {
@@ -90,5 +120,15 @@ describe('UsersService', () => {
         cpf: '123.456.789-00',
       }),
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('changes the password', async () => {
+    await service.changePassword(1, 'verde123', 'nova456');
+    await expect(
+      service.validateUser('ana@example.com', 'verde123'),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+    expect(
+      (await service.validateUser('ana@example.com', 'nova456')).id,
+    ).toBe(1);
   });
 });

@@ -21,11 +21,13 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
     ...init,
     headers,
+    credentials: 'include',
   })
 
   if (!response.ok) {
     throw new ApiError(response.status, `HTTP ${response.status}`)
   }
 
-  return (await response.json()) as T
+  const text = await response.text()
+  return (text ? JSON.parse(text) : null) as T
 }
