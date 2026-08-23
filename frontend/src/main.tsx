@@ -5,14 +5,17 @@ import './index.css'
 import App from './App.tsx'
 import { SessionProvider } from './features/auth/SessionProvider'
 import { CartProvider } from './features/cart/CartProvider'
+import { FavoritesProvider } from './features/favorites/FavoritesProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <SessionProvider>
-        <CartProvider>
-          <App />
-        </CartProvider>
+        <FavoritesProvider>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </FavoritesProvider>
       </SessionProvider>
     </BrowserRouter>
   </StrictMode>,

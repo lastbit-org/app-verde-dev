@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
+import { resolveJwtSecret } from './jwt-secret';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { LocalStrategy } from './local.strategy';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET') ?? 'verde-dev-jwt',
+        secret: resolveJwtSecret(config),
       }),
     }),
   ],

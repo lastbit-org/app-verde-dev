@@ -4,6 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 import { OrderItemEntity } from '../orders/order-item.entity';
 import { OrderEntity } from '../orders/order.entity';
 import { ProductEntity } from '../products/product.entity';
+import { AddressEntity } from '../addresses/address.entity';
 import { UserEntity } from '../users/user.entity';
 import { DEMO_PASSWORD } from '../auth/auth.constants';
 import { hashPassword } from '../users/password';
@@ -16,6 +17,8 @@ export class SeedService implements OnModuleInit {
     private readonly dataSource: DataSource,
     @InjectRepository(UserEntity)
     private readonly users: Repository<UserEntity>,
+    @InjectRepository(AddressEntity)
+    private readonly addresses: Repository<AddressEntity>,
     @InjectRepository(ProductEntity)
     private readonly products: Repository<ProductEntity>,
     @InjectRepository(OrderEntity)
@@ -28,10 +31,23 @@ export class SeedService implements OnModuleInit {
     if ((await this.users.count()) > 0) {
       await this.ensurePasswords();
       await this.ensureDemoRoles();
+      await this.ensureDemoAddress();
       return;
     }
 
     const passwordHash = await hashPassword(DEMO_PASSWORD);
+
+    const [home] = await this.addresses.save([
+      {
+        id: 1,
+        street: 'Rua das Oliveiras',
+        cep: '01310-100',
+        number: '120',
+        complement: 'Apto 42',
+        city: 'São Paulo',
+        uf: 'SP',
+      },
+    ]);
 
     await this.users.save([
       {
@@ -40,6 +56,7 @@ export class SeedService implements OnModuleInit {
         email: 'ana@example.com',
         passwordHash,
         role: 'admin',
+        addressId: home.id,
       },
       {
         id: 2,
@@ -47,6 +64,7 @@ export class SeedService implements OnModuleInit {
         email: 'bruno@example.com',
         passwordHash,
         role: 'partner',
+        addressId: null,
       },
     ]);
 
@@ -171,6 +189,8 @@ export class SeedService implements OnModuleInit {
     await this.resetSequence('products');
     await this.resetSequence('orders');
     await this.resetSequence('order_items');
+    await this.resetSequence('addresses');
+    await this.resetSequence('favorites');
 
     this.logger.log('Database seeded.');
   }
@@ -206,6 +226,26 @@ export class SeedService implements OnModuleInit {
         await this.users.save(user);
       }
     }
+  }
+
+  private async ensureDemoAddress() {
+    const ana = await this.users.findOneBy({ email: 'ana@example.com' });
+    if (!ana || ana.addressId) {
+      return;
+    }
+
+    const address = await this.addresses.save(
+      this.addresses.create({
+        street: 'Rua das Oliveiras',
+        cep: '01310-100',
+        number: '120',
+        complement: 'Apto 42',
+        city: 'São Paulo',
+        uf: 'SP',
+      }),
+    );
+    ana.addressId = address.id;
+    await this.users.save(ana);
   }
 
   private async resetSequence(table: string) {

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Button, ChoiceGroup, Paragraph, Radio, Title } from '../../components'
+import type { Address, AddressInput } from '../../types/user'
 import { ProfileAddress } from '../account/ProfileAddress'
+import { formatAddress } from '../account/address'
 import { PixPayment } from '../payments/PixPayment'
 
 export const paymentLabels = {
@@ -16,6 +18,10 @@ type CheckoutPageProps = {
   deliveryDate: string
   amount: number
   paying: boolean
+  address: Address | null
+  savingAddress?: boolean
+  addressError?: string | null
+  onSaveAddress: (payload: AddressInput) => Promise<boolean>
   onPay: (payment: string) => void
 }
 
@@ -31,16 +37,47 @@ export function CheckoutPage({
   deliveryDate,
   amount,
   paying,
+  address,
+  savingAddress = false,
+  addressError = null,
+  onSaveAddress,
   onPay,
 }: CheckoutPageProps) {
   const [method, setMethod] = useState<PaymentMethod>('pix')
+  const [editingAddress, setEditingAddress] = useState(!address)
+
+  async function saveAddress(payload: AddressInput) {
+    const ok = await onSaveAddress(payload)
+    if (ok) {
+      setEditingAddress(false)
+    }
+    return ok
+  }
 
   return (
     <div className="checkout">
-      <ProfileAddress
-        submitLabel="Confirmar endereço"
-        submitVariant="ghost"
-      />
+      {editingAddress || !address ? (
+        <ProfileAddress
+          key={address?.id ?? 'checkout-address'}
+          address={address}
+          saving={savingAddress}
+          error={addressError}
+          submitLabel="Salvar endereço"
+          submitVariant="ghost"
+          onCancel={address ? () => setEditingAddress(false) : undefined}
+          onSave={saveAddress}
+        />
+      ) : (
+        <div className="panel">
+          <Title as="h4">Endereço</Title>
+          <Paragraph>{formatAddress(address)}</Paragraph>
+          <div className="row">
+            <Button variant="ghost" onClick={() => setEditingAddress(true)}>
+              Editar
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="panel">
         <Title as="h4">Entrega</Title>
@@ -92,10 +129,14 @@ export function CheckoutPage({
         <div className="row checkout-pay">
           <Button
             className="btn-block"
-            disabled={paying}
+            disabled={paying || !address}
             onClick={() => onPay(paymentLabels[method])}
           >
-            {paying ? 'Registrando…' : 'Pagar e finalizar'}
+            {paying
+              ? 'Registrando…'
+              : address
+                ? 'Pagar e finalizar'
+                : 'Informe o endereço para pagar'}
           </Button>
         </div>
       </div>

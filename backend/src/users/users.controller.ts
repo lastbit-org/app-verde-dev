@@ -14,7 +14,8 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { isAdmin } from './roles';
-import type { CreateUserDto, UpdateUserDto, User } from './user';
+import type { User } from './user';
+import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')

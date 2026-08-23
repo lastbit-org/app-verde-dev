@@ -63,6 +63,8 @@ export function CartSection({ onAddOrder }: CartSectionProps) {
             deliveryDate="2026-08-28"
             amount={total}
             paying={paying}
+            address={null}
+            onSaveAddress={async () => false}
             onPay={(payment) => void addOrder(payment)}
           />
           {error ? <p className="status status-error">{error}</p> : null}

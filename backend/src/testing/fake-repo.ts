@@ -18,6 +18,12 @@ export function fakeRepo<T extends Row>(seed: T[] = []) {
       }
       return rows.filter((row) => matches(row, opts.where as Partial<T>));
     }),
+    findOne: jest.fn(async (opts?: { where?: Partial<T> }) => {
+      if (!opts?.where) {
+        return rows[0] ?? null;
+      }
+      return rows.find((row) => matches(row, opts.where as Partial<T>)) ?? null;
+    }),
     findOneBy: jest.fn(async (where: Partial<T>) => {
       return rows.find((row) => matches(row, where)) ?? null;
     }),

@@ -1,6 +1,8 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Eyebrow, Paragraph, Title } from '../components'
 import { useCart } from '../features/cart/CartProvider'
+import { useFavorites } from '../features/favorites/FavoritesProvider'
+import { useSession } from '../features/auth/SessionProvider'
 import { ProductBuyBox } from '../features/products/ProductBuyBox'
 import { ProductCarousel } from '../features/products/ProductCarousel'
 import { ProductDelete } from '../features/products/ProductDelete'
@@ -18,6 +20,8 @@ export function ProductPage() {
   const { product, loading, removing, error, remove } = useProduct(productId)
   const { products } = useProducts()
   const { addProduct, remove: removeFromCart } = useCart()
+  const { user } = useSession()
+  const { isFavorite, toggle, toggling } = useFavorites()
   const navigate = useNavigate()
   const copy = productCopy(productId)
   const related = products.filter((item) => item.id !== productId)
@@ -72,8 +76,17 @@ export function ProductPage() {
                   stock={product.stock}
                   deliveryDate="2026-08-28"
                   seller="Verde Atelier"
+                  favorited={isFavorite(product.id)}
+                  favoriteBusy={toggling === product.id}
                   onBuy={() => addAndGo('/checkout')}
                   onAddToCart={() => addAndGo('/cart')}
+                  onToggleFavorite={() => {
+                    if (!user) {
+                      navigate(`/login?next=/product/${product.id}`)
+                      return
+                    }
+                    void toggle(product.id)
+                  }}
                 />
                 <ProductPayments />
               </div>

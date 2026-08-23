@@ -1,4 +1,4 @@
-import { request } from './client'
+import { request, clearCsrfToken } from './client'
 import type { User } from '../types/user'
 
 export function signupUser(payload: {
@@ -24,7 +24,11 @@ export function getMe() {
 }
 
 export function logoutUser() {
-  return request<{ ok: true }>('/auth/logout', { method: 'POST' })
+  return request<{ ok: true }>('/auth/logout', { method: 'POST' }).finally(
+    () => {
+      clearCsrfToken()
+    },
+  )
 }
 
 export function changePassword(payload: {
@@ -32,6 +36,20 @@ export function changePassword(payload: {
   newPassword: string
 }) {
   return request<{ ok: true }>('/auth/password', {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
+}
+
+export function upsertAddress(payload: {
+  street: string
+  cep: string
+  number: string
+  complement?: string
+  city: string
+  uf: string
+}) {
+  return request<User>('/auth/address', {
     method: 'PATCH',
     body: JSON.stringify(payload),
   })

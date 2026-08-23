@@ -13,12 +13,8 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import type {
-  ApplyDiscountDto,
-  CreateProductDto,
-  Product,
-  UpdateProductDto,
-} from './product';
+import type { Product } from './product';
+import { ApplyDiscountDto, CreateProductDto, UpdateProductDto } from './product.dto';
 import { ProductsService } from './products.service';
 
 @Controller('products')

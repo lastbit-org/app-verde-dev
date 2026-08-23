@@ -7,9 +7,15 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { AddressEntity } from '../addresses/address.entity';
 import { assertCpf, formatCpf, normalizeCpf } from './cpf';
-import { hashPassword, verifyPassword } from './password';
-import type { CreateUserDto, UpdateUserDto, User } from './user';
+import {
+  hashPassword,
+  isStrongPassword,
+  verifyPassword,
+} from './password';
+import type { Address, User } from './user';
+import type { CreateUserDto, UpdateUserDto, UpsertAddressDto } from './user.dto';
 import { UserEntity } from './user.entity';
 
 @Injectable()
@@ -17,6 +23,8 @@ export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly users: Repository<UserEntity>,
+    @InjectRepository(AddressEntity)
+    private readonly addresses: Repository<AddressEntity>,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -65,6 +73,7 @@ export class UsersService {
         passwordHash: await hashPassword(password),
         cpf,
         role: 'user',
+        addressId: null,
       }),
     );
 
@@ -98,6 +107,32 @@ export class UsersService {
     return this.toUser(await this.users.save(user));
   }
 
+  async upsertAddress(id: number, dto: UpsertAddressDto): Promise<User> {
+    const user = await this.requireUser(id);
+    const payload = {
+      street: dto.street.trim(),
+      cep: dto.cep.trim(),
+      number: dto.number.trim(),
+      complement: dto.complement?.trim() ? dto.complement.trim() : null,
+      city: dto.city.trim(),
+      uf: dto.uf.trim().toUpperCase(),
+    };
+
+    if (user.addressId) {
+      const address = await this.addresses.findOneBy({ id: user.addressId });
+      if (address) {
+        Object.assign(address, payload);
+        user.address = await this.addresses.save(address);
+        return this.toUser(user);
+      }
+    }
+
+    const address = await this.addresses.save(this.addresses.create(payload));
+    user.addressId = address.id;
+    user.address = address;
+    return this.toUser(await this.users.save(user));
+  }
+
   async changePassword(
     id: number,
     currentPassword: string,
@@ -121,13 +156,9 @@ export class UsersService {
   }
 
   private requirePassword(password: string) {
-    if (
-      typeof password !== 'string' ||
-      password.length < 6 ||
-      password.length > 72
-    ) {
+    if (!isStrongPassword(password)) {
       throw new BadRequestException(
-        'Password must be between 6 and 72 characters',
+        'Password must be 8–72 characters and include a letter and a number',
       );
     }
 
@@ -135,7 +166,10 @@ export class UsersService {
   }
 
   private async requireUser(id: number) {
-    const user = await this.users.findOneBy({ id });
+    const user = await this.users.findOne({
+      where: { id },
+      relations: { address: true },
+    });
 
     if (!user) {
       throw new NotFoundException(`User ${id} not found`);
@@ -158,6 +192,18 @@ export class UsersService {
     return rows.find((item) => item.cpf === digits) ?? null;
   }
 
+  private toAddress(row: AddressEntity): Address {
+    return {
+      id: row.id,
+      street: row.street,
+      cep: row.cep,
+      number: row.number,
+      complement: row.complement,
+      city: row.city,
+      uf: row.uf,
+    };
+  }
+
   private toUser(row: UserEntity): User {
     return {
       id: row.id,
@@ -165,6 +211,8 @@ export class UsersService {
       email: row.email,
       cpf: formatCpf(row.cpf),
       role: row.role ?? 'user',
+      addressId: row.addressId ?? null,
+      address: row.address ? this.toAddress(row.address) : null,
     };
   }
 }

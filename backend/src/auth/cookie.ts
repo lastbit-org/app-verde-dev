@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { AUTH_COOKIE, AUTH_COOKIE_MAX_AGE_MS } from './auth.constants';
+import { clearCsrfCookie, ensureCsrfCookie } from './csrf';
 
 function cookieOptions() {
   return {
@@ -16,8 +17,11 @@ export function cookieExtractor(req: Request): string | null {
   return typeof token === 'string' && token.length > 0 ? token : null;
 }
 
-export function setAuthCookie(res: Response, token: string) {
+export function setAuthCookie(res: Response, token: string, req?: Request) {
   res.cookie(AUTH_COOKIE, token, cookieOptions());
+  if (req) {
+    ensureCsrfCookie(req, res);
+  }
 }
 
 export function clearAuthCookie(res: Response) {
@@ -27,4 +31,5 @@ export function clearAuthCookie(res: Response) {
     sameSite: 'lax',
     path: '/',
   });
+  clearCsrfCookie(res);
 }

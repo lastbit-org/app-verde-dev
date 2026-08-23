@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import { RequireAuth } from './features/auth/RequireAuth'
+import { FavoritesPage } from './pages/FavoritesPage'
 import { LoginPage } from './pages/LoginPage'
 import { PaymentPage } from './pages/PaymentPage'
 import { ProductPage } from './pages/ProductPage'
@@ -53,6 +54,14 @@ function App() {
         element={
           <RequireAuth>
             <PurchasesPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/favorites"
+        element={
+          <RequireAuth>
+            <FavoritesPage />
           </RequireAuth>
         }
       />

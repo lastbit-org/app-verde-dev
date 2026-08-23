@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersService } from '../users/users.service';
 import { cookieExtractor } from './cookie';
+import { resolveJwtSecret } from './jwt-secret';
 
 type JwtPayload = {
   sub: number;
@@ -19,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
       ignoreExpiration: false,
-      secretOrKey: config.get<string>('JWT_SECRET') ?? 'verde-dev-jwt',
+      secretOrKey: resolveJwtSecret(config),
     });
   }
 

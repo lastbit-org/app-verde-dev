@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react'
 import { Button, Field, Input, Select, Title } from '../../components'
+import type { Address, AddressInput } from '../../types/user'
 
 const ufs = [
   'AC',
@@ -32,40 +33,53 @@ const ufs = [
 ].map((uf) => ({ value: uf, label: uf }))
 
 type ProfileAddressProps = {
-  street?: string
-  cep?: string
-  number?: string
-  complement?: string
-  city?: string
-  uf?: string
+  address?: Address | null
+  saving?: boolean
+  error?: string | null
+  message?: string | null
   submitLabel?: string
   submitVariant?: 'primary' | 'secondary' | 'ghost'
+  onCancel?: () => void
+  onSave?: (payload: AddressInput) => Promise<boolean>
 }
 
 export function ProfileAddress({
-  street = 'Rua das Oliveiras',
-  cep = '01310-100',
-  number = '120',
-  complement = 'Apto 42',
-  city = 'São Paulo',
-  uf = 'SP',
+  address = null,
+  saving = false,
+  error = null,
+  message = null,
   submitLabel = 'Salvar endereço',
   submitVariant = 'primary',
+  onCancel,
+  onSave,
 }: ProfileAddressProps) {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (!onSave) {
+      return
+    }
+
+    const data = new FormData(event.currentTarget)
+    await onSave({
+      street: String(data.get('street') ?? ''),
+      cep: String(data.get('cep') ?? ''),
+      number: String(data.get('number') ?? ''),
+      complement: String(data.get('complement') ?? ''),
+      city: String(data.get('city') ?? ''),
+      uf: String(data.get('uf') ?? ''),
+    })
   }
 
   return (
     <div className="panel">
       <Title as="h4">Endereço</Title>
-      <form className="form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={(event) => void handleSubmit(event)}>
         <Field label="Rua">
           <Input
             type="text"
             name="street"
             autoComplete="street-address"
-            defaultValue={street}
+            defaultValue={address?.street ?? ''}
             required
           />
         </Field>
@@ -78,7 +92,7 @@ export function ProfileAddress({
               inputMode="numeric"
               autoComplete="postal-code"
               placeholder="00000-000"
-              defaultValue={cep}
+              defaultValue={address?.cep ?? ''}
               required
             />
           </Field>
@@ -87,7 +101,7 @@ export function ProfileAddress({
               type="text"
               name="number"
               inputMode="numeric"
-              defaultValue={number}
+              defaultValue={address?.number ?? ''}
               required
             />
           </Field>
@@ -98,7 +112,7 @@ export function ProfileAddress({
             type="text"
             name="complement"
             placeholder="Apto, bloco, referência"
-            defaultValue={complement}
+            defaultValue={address?.complement ?? ''}
           />
         </Field>
 
@@ -108,21 +122,33 @@ export function ProfileAddress({
               type="text"
               name="city"
               autoComplete="address-level2"
-              defaultValue={city}
+              defaultValue={address?.city ?? ''}
               required
             />
           </Field>
           <Field label="UF">
-            <Select name="uf" defaultValue={uf} options={ufs} required />
+            <Select
+              name="uf"
+              defaultValue={address?.uf ?? 'SP'}
+              options={ufs}
+              required
+            />
           </Field>
         </div>
 
         <div className="row">
-          <Button type="submit" variant={submitVariant}>
-            {submitLabel}
+          <Button type="submit" variant={submitVariant} disabled={saving}>
+            {saving ? 'Salvando…' : submitLabel}
           </Button>
+          {onCancel ? (
+            <Button type="button" variant="ghost" onClick={onCancel}>
+              Cancelar
+            </Button>
+          ) : null}
         </div>
       </form>
+      {error ? <p className="status status-error">{error}</p> : null}
+      {message ? <p className="status status-ok">{message}</p> : null}
     </div>
   )
 }

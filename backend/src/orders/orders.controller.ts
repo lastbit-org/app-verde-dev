@@ -14,7 +14,8 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { isAdmin } from '../users/roles';
 import type { User } from '../users/user';
-import type { CreateOrderDto, OrderWithItems, UpdateOrderDto } from './order';
+import { CreateOrderDto, UpdateOrderDto } from './order.dto';
+import type { OrderWithItems } from './order';
 import { OrdersService } from './orders.service';
 
 @UseGuards(JwtAuthGuard)

@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderItemEntity } from '../orders/order-item.entity';
 import { OrderEntity } from '../orders/order.entity';
 import { ProductEntity } from '../products/product.entity';
+import { AddressEntity } from '../addresses/address.entity';
+import { FavoriteEntity } from '../favorites/favorite.entity';
 import { UserEntity } from '../users/user.entity';
 import { SeedService } from './seed.service';
 
@@ -28,6 +30,8 @@ import { SeedService } from './seed.service';
       ProductEntity,
       OrderEntity,
       OrderItemEntity,
+      AddressEntity,
+      FavoriteEntity,
     ]),
   ],
   providers: [SeedService],

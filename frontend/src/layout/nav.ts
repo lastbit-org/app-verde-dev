@@ -25,7 +25,7 @@ export const account = [
   { href: '/user#pedidos', label: 'Pedidos', icon: 'package' as const },
   { href: '/purchases', label: 'Compras', icon: 'receipt' as const },
   { href: '/products', label: 'Produtos', icon: 'shop' as const },
-  { href: '/#favoritos', label: 'Favoritos', icon: 'heart' as const },
+  { href: '/favorites', label: 'Favoritos', icon: 'heart' as const },
 ]
 
 export function menuFor(user: User | null) {

@@ -48,8 +48,10 @@ export function useAuth() {
           setError('Este e-mail já está em uso.')
         } else if (err instanceof ApiError && err.status === 401) {
           setError('E-mail ou senha inválidos.')
+        } else if (err instanceof ApiError && err.status === 429) {
+          setError('Muitas tentativas. Espere um minuto e tente de novo.')
         } else if (err instanceof ApiError && err.status === 400) {
-          setError('Confira nome, e-mail e senha (mínimo 6 caracteres).')
+          setError('Confira nome, e-mail e senha (mínimo 8 caracteres, com letra e número).')
         } else {
           setError('Não foi possível concluir. Confira se a API está no ar.')
         }

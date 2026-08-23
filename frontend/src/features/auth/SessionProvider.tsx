@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { getMe, logoutUser } from '../../api/auth'
+import { ensureCsrf } from '../../api/client'
 import type { User } from '../../types/user'
 import { forgetLegacySession } from './session'
 
@@ -28,7 +29,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     forgetLegacySession()
     let cancelled = false
 
-    void getMe()
+    void ensureCsrf()
+      .then(() => getMe())
       .then((next) => {
         if (!cancelled) {
           setUser(next)

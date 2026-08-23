@@ -4,8 +4,11 @@ type ProductBuyBoxProps = {
   stock: number
   deliveryDate: string
   seller: string
+  favorited?: boolean
+  favoriteBusy?: boolean
   onBuy?: () => void
   onAddToCart?: () => void
+  onToggleFavorite?: () => void
 }
 
 function formatDay(value: string) {
@@ -40,8 +43,11 @@ export function ProductBuyBox({
   stock,
   deliveryDate,
   seller,
+  favorited = false,
+  favoriteBusy = false,
   onBuy,
   onAddToCart,
+  onToggleFavorite,
 }: ProductBuyBoxProps) {
   const available = stock > 0
 
@@ -63,6 +69,20 @@ export function ProductBuyBox({
             onClick={onAddToCart}
           >
             Adicionar ao carrinho
+          </Button>
+        ) : null}
+        {onToggleFavorite ? (
+          <Button
+            className="btn-block"
+            variant="ghost"
+            disabled={favoriteBusy}
+            onClick={onToggleFavorite}
+          >
+            {favoriteBusy
+              ? 'Salvando…'
+              : favorited
+                ? 'Remover dos favoritos'
+                : 'Adicionar aos favoritos'}
           </Button>
         ) : null}
       </div>

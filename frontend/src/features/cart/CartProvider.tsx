@@ -2,12 +2,13 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react'
 import type { Product } from '../../types/product'
-import { initialCart, type CartItem } from './cartData'
+import { readCart, writeCart, type CartItem } from './cartData'
 import { productToCartItem } from './productToCartItem'
 
 type CartValue = {
@@ -24,7 +25,11 @@ type CartValue = {
 const CartContext = createContext<CartValue | null>(null)
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(initialCart)
+  const [items, setItems] = useState<CartItem[]>(() => readCart())
+
+  useEffect(() => {
+    writeCart(items)
+  }, [items])
 
   const addItem = useCallback((item: CartItem) => {
     setItems((current) => {

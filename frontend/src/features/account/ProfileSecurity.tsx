@@ -50,7 +50,7 @@ export function ProfileSecurity({
             name="currentPassword"
             autoComplete="current-password"
             placeholder="••••••••"
-            minLength={6}
+            minLength={8}
             required
           />
         </Field>
@@ -60,7 +60,7 @@ export function ProfileSecurity({
             name="newPassword"
             autoComplete="new-password"
             placeholder="••••••••"
-            minLength={6}
+            minLength={8}
             required
           />
         </Field>
@@ -70,7 +70,7 @@ export function ProfileSecurity({
             name="confirmPassword"
             autoComplete="new-password"
             placeholder="••••••••"
-            minLength={6}
+            minLength={8}
             required
           />
         </Field>

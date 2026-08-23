@@ -18,6 +18,7 @@ export function UserPage() {
     message,
     updateProfile,
     updatePassword,
+    updateAddress,
     clear,
   } = useCurrentUser()
   const { orders, loading: ordersLoading, error: ordersError } = useOrders(
@@ -63,11 +64,13 @@ export function UserPage() {
               name={user.name}
               email={user.email}
               cpf={user.cpf}
+              address={user.address}
               saving={saving}
               error={error}
               message={message}
               onSavePersonal={updateProfile}
               onSavePassword={updatePassword}
+              onSaveAddress={updateAddress}
             >
               <UserPreferences />
             </AccountSection>

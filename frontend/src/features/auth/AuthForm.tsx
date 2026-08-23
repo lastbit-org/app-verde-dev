@@ -69,7 +69,7 @@ export function AuthForm() {
             name="password"
             autoComplete={isSignup ? 'new-password' : 'current-password'}
             placeholder="••••••••"
-            minLength={6}
+            minLength={8}
             required
           />
         </Field>

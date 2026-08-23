@@ -6,12 +6,16 @@ import {
 import { fakeRepo } from '../testing/fake-repo';
 import { UsersService } from './users.service';
 
-jest.mock('./password', () => ({
-  hashPassword: jest.fn(async (plain: string) => `hashed:${plain}`),
-  verifyPassword: jest.fn(
-    async (plain: string, hash: string) => hash === `hashed:${plain}`,
-  ),
-}));
+jest.mock('./password', () => {
+  const actual = jest.requireActual('./password') as typeof import('./password');
+  return {
+    ...actual,
+    hashPassword: jest.fn(async (plain: string) => `hashed:${plain}`),
+    verifyPassword: jest.fn(
+      async (plain: string, hash: string) => hash === `hashed:${plain}`,
+    ),
+  };
+});
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -35,7 +39,7 @@ describe('UsersService', () => {
         role: 'partner',
       },
     ]);
-    service = new UsersService(users as never);
+    service = new UsersService(users as never, fakeRepo([]) as never);
   });
 
   it('lists users', async () => {
@@ -49,6 +53,8 @@ describe('UsersService', () => {
       email: 'ana@example.com',
       cpf: '123.456.789-00',
       role: 'admin',
+      addressId: null,
+      address: null,
     });
   });
 
@@ -60,7 +66,7 @@ describe('UsersService', () => {
     const user = await service.create({
       name: 'Carla Souza',
       email: 'carla@example.com',
-      password: 'secret1',
+      password: 'secret12',
     });
 
     expect(user).toEqual({
@@ -69,6 +75,8 @@ describe('UsersService', () => {
       email: 'carla@example.com',
       cpf: null,
       role: 'user',
+      addressId: null,
+      address: null,
     });
     expect(await service.findAll()).toHaveLength(3);
   });
@@ -78,7 +86,7 @@ describe('UsersService', () => {
       service.create({
         name: 'Ana',
         email: 'ana@example.com',
-        password: 'secret1',
+        password: 'secret12',
       }),
     ).rejects.toBeInstanceOf(ConflictException);
   });
@@ -114,6 +122,8 @@ describe('UsersService', () => {
       email: 'ana.lima@example.com',
       cpf: '987.654.321-00',
       role: 'admin',
+      addressId: null,
+      address: null,
     });
   });
 
@@ -128,12 +138,12 @@ describe('UsersService', () => {
   });
 
   it('changes the password', async () => {
-    await service.changePassword(1, 'verde123', 'nova456');
+    await service.changePassword(1, 'verde123', 'nova4567');
     await expect(
       service.validateUser('ana@example.com', 'verde123'),
     ).rejects.toBeInstanceOf(UnauthorizedException);
     expect(
-      (await service.validateUser('ana@example.com', 'nova456')).id,
+      (await service.validateUser('ana@example.com', 'nova4567')).id,
     ).toBe(1);
   });
 });

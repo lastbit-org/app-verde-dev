@@ -1,5 +1,3 @@
-import { products as photos } from '../../data/products'
-
 export type CartItem = {
   id: number
   name: string
@@ -10,30 +8,42 @@ export type CartItem = {
   quantity: number
 }
 
-export const initialCart: CartItem[] = [
-  {
-    id: 1,
-    name: 'Oliveira em vaso sage',
-    description: 'Folhagem densa, irrigação espaçada. Peça quieta para mesa ou janela.',
-    image: photos[0],
-    price: 248,
-    quantity: 1,
-  },
-  {
-    id: 2,
-    name: 'Vaso de cerâmica artesanal',
-    description: 'Silhueta irregular, esmalte fosco em tom sage.',
-    image: photos[1],
-    price: 186,
-    originalPrice: 220,
-    quantity: 1,
-  },
-  {
-    id: 3,
-    name: 'Kit de cuidados',
-    description: 'Frasco âmbar, pano de linho e folhas para o ritual da semana.',
-    image: photos[2],
-    price: 92,
-    quantity: 2,
-  },
-]
+const STORAGE_KEY = 'verde_cart'
+
+function isCartItem(value: unknown): value is CartItem {
+  if (!value || typeof value !== 'object') {
+    return false
+  }
+
+  const item = value as CartItem
+  return (
+    Number.isInteger(item.id) &&
+    typeof item.name === 'string' &&
+    typeof item.price === 'number' &&
+    Number.isInteger(item.quantity) &&
+    item.quantity > 0 &&
+    typeof item.image?.src === 'string'
+  )
+}
+
+export function readCart(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) {
+      return []
+    }
+
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) {
+      return []
+    }
+
+    return parsed.filter(isCartItem)
+  } catch {
+    return []
+  }
+}
+
+export function writeCart(items: CartItem[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+}

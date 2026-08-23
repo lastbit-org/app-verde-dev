@@ -1,32 +1,21 @@
 import type { UserRole } from './roles';
 
+export type Address = {
+  id: number;
+  street: string;
+  cep: string;
+  number: string;
+  complement: string | null;
+  city: string;
+  uf: string;
+};
+
 export interface User {
   id: number;
   name: string;
   email: string;
   cpf: string | null;
   role: UserRole;
-}
-
-export interface CreateUserDto {
-  name: string;
-  email: string;
-  password: string;
-  cpf?: string;
-}
-
-export interface UpdateUserDto {
-  name: string;
-  email: string;
-  cpf: string;
-}
-
-export interface LoginDto {
-  email: string;
-  password: string;
-}
-
-export interface ChangePasswordDto {
-  currentPassword: string;
-  newPassword: string;
+  addressId: number | null;
+  address: Address | null;
 }

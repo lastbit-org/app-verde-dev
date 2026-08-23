@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { UpdateUserInput } from '../../types/user'
+import type { Address, AddressInput, UpdateUserInput } from '../../types/user'
 import { Paragraph, Section } from '../../components'
 import { ProfileAddress } from './ProfileAddress'
 import { ProfilePersonal } from './ProfilePersonal'
@@ -9,6 +9,7 @@ type AccountSectionProps = {
   name?: string
   email?: string
   cpf?: string | null
+  address?: Address | null
   saving?: boolean
   error?: string | null
   message?: string | null
@@ -17,6 +18,7 @@ type AccountSectionProps = {
     currentPassword: string,
     newPassword: string,
   ) => Promise<boolean>
+  onSaveAddress?: (payload: AddressInput) => Promise<boolean>
   children?: ReactNode
 }
 
@@ -24,11 +26,13 @@ export function AccountSection({
   name,
   email,
   cpf,
+  address,
   saving,
   error,
   message,
   onSavePersonal,
   onSavePassword,
+  onSaveAddress,
   children,
 }: AccountSectionProps) {
   return (
@@ -47,7 +51,14 @@ export function AccountSection({
           message={message}
           onSave={onSavePersonal}
         />
-        <ProfileAddress />
+        <ProfileAddress
+          key={address?.id ?? 'new-address'}
+          address={address}
+          saving={saving}
+          error={error}
+          message={message}
+          onSave={onSaveAddress}
+        />
         <ProfileSecurity
           saving={saving}
           error={error}

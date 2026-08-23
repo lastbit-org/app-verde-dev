@@ -15,12 +15,12 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import type { User } from '../users/user';
-import type {
+import type { OrderItem } from './order-item';
+import {
   ApplyItemDiscountDto,
   CreateOrderItemDto,
-  OrderItem,
   UpdateOrderItemDto,
-} from './order-item';
+} from './order.dto';
 import { OrdersService } from './orders.service';
 
 @UseGuards(JwtAuthGuard)

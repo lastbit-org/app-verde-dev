@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { AddressEntity } from '../addresses/address.entity';
 import type { UserRole } from './roles';
 
 @Entity('users')
@@ -20,4 +27,11 @@ export class UserEntity {
 
   @Column({ type: 'varchar', length: 16, default: 'user' })
   role: UserRole;
+
+  @Column({ type: 'int', nullable: true })
+  addressId: number | null;
+
+  @OneToOne(() => AddressEntity, { nullable: true, eager: true })
+  @JoinColumn({ name: 'addressId' })
+  address: AddressEntity | null;
 }
