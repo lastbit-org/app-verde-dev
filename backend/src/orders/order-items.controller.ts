@@ -22,17 +22,17 @@ export class OrderItemsController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  findAll(@Query('orderId') orderId?: string): OrderItem[] {
+  findAll(@Query('orderId') orderId?: string): Promise<OrderItem[]> {
     return this.ordersService.findAllItems(this.parseOrderId(orderId));
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): OrderItem {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<OrderItem> {
     return this.ordersService.findOneItem(id);
   }
 
   @Post()
-  create(@Body() dto: CreateOrderItemDto): OrderItem {
+  create(@Body() dto: CreateOrderItemDto): Promise<OrderItem> {
     return this.ordersService.createItem(dto);
   }
 
@@ -40,7 +40,7 @@ export class OrderItemsController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateOrderItemDto,
-  ): OrderItem {
+  ): Promise<OrderItem> {
     return this.ordersService.updateItem(id, dto);
   }
 
@@ -48,7 +48,7 @@ export class OrderItemsController {
   applyDiscount(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ApplyItemDiscountDto,
-  ): OrderItem {
+  ): Promise<OrderItem> {
     return this.ordersService.applyItemDiscount(id, dto.discount);
   }
 

@@ -15,17 +15,17 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  findAll(): OrderWithItems[] {
+  findAll(): Promise<OrderWithItems[]> {
     return this.ordersService.findAllOrders();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): OrderWithItems {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<OrderWithItems> {
     return this.ordersService.findOneOrder(id);
   }
 
   @Post()
-  create(@Body() dto: CreateOrderDto): OrderWithItems {
+  create(@Body() dto: CreateOrderDto): Promise<OrderWithItems> {
     return this.ordersService.createOrder(dto);
   }
 
@@ -33,7 +33,7 @@ export class OrdersController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateOrderDto,
-  ): OrderWithItems {
+  ): Promise<OrderWithItems> {
     return this.ordersService.updateOrder(id, dto);
   }
 }

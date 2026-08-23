@@ -14,22 +14,22 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  findAll(): User[] {
+  findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): User {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
     return this.usersService.findOne(id);
   }
 
   @Post()
-  create(@Body() dto: CreateUserDto): User {
+  create(@Body() dto: CreateUserDto): Promise<User> {
     return this.usersService.create(dto);
   }
 
   @Post('login')
-  login(@Body() dto: LoginDto): User {
+  login(@Body() dto: LoginDto): Promise<User> {
     return this.usersService.findByEmail(dto.email);
   }
 }

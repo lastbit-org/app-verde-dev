@@ -4,59 +4,73 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import type { CreateUserDto, User } from './user';
+import { UserEntity } from './user.entity';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    { id: 1, name: 'Ana Silva', email: 'ana@example.com' },
-    { id: 2, name: 'Bruno Costa', email: 'bruno@example.com' },
-  ];
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly users: Repository<UserEntity>,
+  ) {}
 
-  private nextId = 3;
-
-  findAll(): User[] {
-    return this.users;
+  async findAll(): Promise<User[]> {
+    const rows = await this.users.find({ order: { id: 'ASC' } });
+    return rows.map((row) => this.toUser(row));
   }
 
-  findOne(id: number): User {
-    const user = this.users.find((item) => item.id === id);
+  async findOne(id: number): Promise<User> {
+    const user = await this.users.findOneBy({ id });
 
     if (!user) {
       throw new NotFoundException(`User ${id} not found`);
     }
 
-    return user;
+    return this.toUser(user);
   }
 
-  findByEmail(email: string): User {
-    const user = this.users.find(
-      (item) => item.email.toLowerCase() === email.toLowerCase(),
-    );
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.findByEmailRow(email);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return user;
+    return this.toUser(user);
   }
 
-  create(dto: CreateUserDto): User {
-    const taken = this.users.some(
-      (item) => item.email.toLowerCase() === dto.email.toLowerCase(),
-    );
+  async create(dto: CreateUserDto): Promise<User> {
+    const taken = await this.findByEmailRow(dto.email);
 
     if (taken) {
       throw new ConflictException('Email already in use');
     }
 
-    const user: User = {
-      id: this.nextId++,
-      name: dto.name,
-      email: dto.email,
-    };
+    const user = await this.users.save(
+      this.users.create({
+        name: dto.name,
+        email: dto.email,
+      }),
+    );
 
-    this.users.push(user);
-    return user;
+    return this.toUser(user);
+  }
+
+  private async findByEmailRow(email: string) {
+    const rows = await this.users.find();
+    return (
+      rows.find((item) => item.email.toLowerCase() === email.toLowerCase()) ??
+      null
+    );
+  }
+
+  private toUser(row: UserEntity): User {
+    return {
+      id: row.id,
+      name: row.name,
+      email: row.email,
+    };
   }
 }

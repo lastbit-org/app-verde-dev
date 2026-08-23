@@ -15,17 +15,17 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  findAll(): Product[] {
+  findAll(): Promise<Product[]> {
     return this.productsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Product {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Product> {
     return this.productsService.findOne(id);
   }
 
   @Post()
-  create(@Body() dto: CreateProductDto): Product {
+  create(@Body() dto: CreateProductDto): Promise<Product> {
     return this.productsService.create(dto);
   }
 
@@ -33,7 +33,7 @@ export class ProductsController {
   applyDiscount(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ApplyDiscountDto,
-  ): Product {
+  ): Promise<Product> {
     return this.productsService.applyDiscount(id, dto.discount);
   }
 }

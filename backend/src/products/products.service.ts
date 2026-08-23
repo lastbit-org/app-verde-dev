@@ -1,97 +1,74 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import type { CreateProductDto, Product } from './product';
+import { ProductEntity } from './product.entity';
 
 @Injectable()
 export class ProductsService {
-  private products: Product[] = [
-    {
-      id: 1,
-      name: 'Oliveira em vaso sage',
-      price: 248,
-      discount: 0,
-      image: {
-        url: 'https://picsum.photos/seed/oliveira/600/800',
-        name: 'oliveira-vaso-sage.jpg',
-      },
-    },
-    {
-      id: 2,
-      name: 'Vaso de cerâmica artesanal',
-      price: 186,
-      discount: 0,
-      image: {
-        url: 'https://picsum.photos/seed/vaso/600/800',
-        name: 'vaso-ceramica.jpg',
-      },
-    },
-    {
-      id: 3,
-      name: 'Kit de cuidados',
-      price: 92,
-      discount: 0,
-      image: {
-        url: 'https://picsum.photos/seed/cuidados/600/800',
-        name: 'kit-cuidados.jpg',
-      },
-    },
-    {
-      id: 4,
-      name: 'Planta de interior',
-      price: 164,
-      discount: 0,
-      image: {
-        url: 'https://picsum.photos/seed/planta/600/800',
-        name: 'planta-interior.jpg',
-      },
-    },
-    {
-      id: 5,
-      name: 'Composição sobre linho',
-      price: 210,
-      discount: 0,
-      image: {
-        url: 'https://picsum.photos/seed/linho/600/800',
-        name: 'composicao-linho.jpg',
-      },
-    },
-  ];
+  constructor(
+    @InjectRepository(ProductEntity)
+    private readonly products: Repository<ProductEntity>,
+  ) {}
 
-  private nextId = 6;
-
-  findAll(): Product[] {
-    return this.products;
+  async findAll(): Promise<Product[]> {
+    const rows = await this.products.find({ order: { id: 'ASC' } });
+    return rows.map((row) => this.toProduct(row));
   }
 
-  findOne(id: number): Product {
-    const product = this.products.find((item) => item.id === id);
+  async findOne(id: number): Promise<Product> {
+    const product = await this.products.findOneBy({ id });
 
     if (!product) {
       throw new NotFoundException(`Product ${id} not found`);
     }
 
-    return product;
+    return this.toProduct(product);
   }
 
-  create(dto: CreateProductDto): Product {
-    const product: Product = {
-      id: this.nextId++,
-      name: dto.name,
-      price: dto.price,
-      discount: 0,
-      image: dto.image,
-    };
+  async create(dto: CreateProductDto): Promise<Product> {
+    const product = await this.products.save(
+      this.products.create({
+        name: dto.name,
+        price: dto.price,
+        discount: 0,
+        imageUrl: dto.image.url,
+        imageName: dto.image.name,
+      }),
+    );
 
-    this.products.push(product);
-    return product;
+    return this.toProduct(product);
   }
 
-  applyDiscount(id: number, discount: number): Product {
+  async applyDiscount(id: number, discount: number): Promise<Product> {
     if (Number.isNaN(discount) || discount < 0 || discount > 100) {
       throw new BadRequestException('Discount must be between 0 and 100');
     }
 
-    const product = this.findOne(id);
+    const product = await this.products.findOneBy({ id });
+
+    if (!product) {
+      throw new NotFoundException(`Product ${id} not found`);
+    }
+
     product.discount = discount;
-    return product;
+    return this.toProduct(await this.products.save(product));
+  }
+
+  private toProduct(row: ProductEntity): Product {
+    return {
+      id: row.id,
+      name: row.name,
+      price: row.price,
+      discount: row.discount,
+      image: {
+        url: row.imageUrl,
+        name: row.imageName,
+      },
+    };
   }
 }

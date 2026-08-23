@@ -3,6 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import type {
   CreateOrderDto,
   Order,
@@ -15,6 +17,8 @@ import type {
   OrderItem,
   UpdateOrderItemDto,
 } from './order-item';
+import { OrderItemEntity } from './order-item.entity';
+import { OrderEntity } from './order.entity';
 
 const STATUSES: OrderStatus[] = [
   'preparando',
@@ -25,85 +29,20 @@ const STATUSES: OrderStatus[] = [
 
 @Injectable()
 export class OrdersService {
-  private orders: Order[] = [
-    {
-      id: 1,
-      orderId: 'VER-1042',
-      userId: 1,
-      payment: 'Pix',
-      status: 'entregue',
-      totalPrice: 432,
-      createdAt: '2026-08-12',
-    },
-    {
-      id: 2,
-      orderId: 'VER-1108',
-      userId: 1,
-      payment: 'Cartão de crédito',
-      status: 'em trânsito',
-      totalPrice: 186,
-      createdAt: '2026-08-18',
-    },
-    {
-      id: 3,
-      orderId: 'VER-1120',
-      userId: 2,
-      payment: 'Boleto',
-      status: 'preparando',
-      totalPrice: 164,
-      createdAt: '2026-08-21',
-    },
-  ];
+  constructor(
+    @InjectRepository(OrderEntity)
+    private readonly orders: Repository<OrderEntity>,
+    @InjectRepository(OrderItemEntity)
+    private readonly items: Repository<OrderItemEntity>,
+  ) {}
 
-  private items: OrderItem[] = [
-    {
-      id: 1,
-      orderId: 1,
-      productId: 1,
-      name: 'Oliveira em vaso sage',
-      price: 248,
-      quantity: 1,
-      discount: 0,
-    },
-    {
-      id: 2,
-      orderId: 1,
-      productId: 3,
-      name: 'Kit de cuidados',
-      price: 92,
-      quantity: 2,
-      discount: 0,
-    },
-    {
-      id: 3,
-      orderId: 2,
-      productId: 2,
-      name: 'Vaso de cerâmica artesanal',
-      price: 186,
-      quantity: 1,
-      discount: 0,
-    },
-    {
-      id: 4,
-      orderId: 3,
-      productId: 4,
-      name: 'Planta de interior',
-      price: 164,
-      quantity: 1,
-      discount: 0,
-    },
-  ];
-
-  private nextOrderId = 4;
-  private nextItemId = 5;
-  private nextOrderCode = 1121;
-
-  findAllOrders(): OrderWithItems[] {
-    return this.orders.map((order) => this.withItems(order));
+  async findAllOrders(): Promise<OrderWithItems[]> {
+    const rows = await this.orders.find({ order: { id: 'ASC' } });
+    return Promise.all(rows.map((row) => this.withItems(row)));
   }
 
-  findOneOrder(id: number): OrderWithItems {
-    const order = this.orders.find((item) => item.id === id);
+  async findOneOrder(id: number): Promise<OrderWithItems> {
+    const order = await this.orders.findOneBy({ id });
 
     if (!order) {
       throw new NotFoundException(`Order ${id} not found`);
@@ -112,71 +51,84 @@ export class OrdersService {
     return this.withItems(order);
   }
 
-  createOrder(dto: CreateOrderDto): OrderWithItems {
-    const order: Order = {
-      id: this.nextOrderId++,
-      orderId: `VER-${this.nextOrderCode++}`,
-      userId: dto.userId,
-      payment: dto.payment,
-      status: 'preparando',
-      totalPrice: 0,
-      createdAt: dto.createdAt ?? new Date().toISOString().slice(0, 10),
-    };
-
-    this.orders.push(order);
+  async createOrder(dto: CreateOrderDto): Promise<OrderWithItems> {
+    const order = await this.orders.save(
+      this.orders.create({
+        orderId: await this.nextOrderCode(),
+        userId: dto.userId,
+        payment: dto.payment,
+        status: 'preparando',
+        totalPrice: 0,
+        createdAt: dto.createdAt ?? new Date().toISOString().slice(0, 10),
+      }),
+    );
 
     for (const line of dto.items ?? []) {
-      this.addItem({ ...line, orderId: order.id });
+      await this.addItem({ ...line, orderId: order.id });
     }
 
     return this.findOneOrder(order.id);
   }
 
-  updateOrder(id: number, dto: UpdateOrderDto): OrderWithItems {
-    const order = this.findOneOrder(id);
+  async updateOrder(id: number, dto: UpdateOrderDto): Promise<OrderWithItems> {
+    const order = await this.orders.findOneBy({ id });
+
+    if (!order) {
+      throw new NotFoundException(`Order ${id} not found`);
+    }
 
     if (dto.status !== undefined) {
       if (!STATUSES.includes(dto.status)) {
         throw new BadRequestException('Invalid order status');
       }
-      this.patchOrder(id, { status: dto.status });
+      order.status = dto.status;
     }
 
     if (dto.payment !== undefined) {
       if (!dto.payment.trim()) {
         throw new BadRequestException('Payment is required');
       }
-      this.patchOrder(id, { payment: dto.payment });
+      order.payment = dto.payment;
     }
 
-    return this.findOneOrder(order.id);
+    await this.orders.save(order);
+    return this.findOneOrder(id);
   }
 
-  findAllItems(orderId?: number): OrderItem[] {
+  async findAllItems(orderId?: number): Promise<OrderItem[]> {
     if (orderId === undefined) {
-      return this.items;
+      const rows = await this.items.find({ order: { id: 'ASC' } });
+      return rows.map((row) => this.toItem(row));
     }
 
-    this.findOneOrder(orderId);
-    return this.items.filter((item) => item.orderId === orderId);
+    await this.findOneOrder(orderId);
+    const rows = await this.items.find({
+      where: { orderId },
+      order: { id: 'ASC' },
+    });
+    return rows.map((row) => this.toItem(row));
   }
 
-  findOneItem(id: number): OrderItem {
-    const item = this.items.find((entry) => entry.id === id);
+  async findOneItem(id: number): Promise<OrderItem> {
+    const item = await this.items.findOneBy({ id });
 
     if (!item) {
       throw new NotFoundException(`Order item ${id} not found`);
     }
 
-    return item;
+    return this.toItem(item);
   }
 
-  createItem(dto: CreateOrderItemDto): OrderItem {
+  async createItem(dto: CreateOrderItemDto): Promise<OrderItem> {
     return this.addItem(dto);
   }
 
-  updateItem(id: number, dto: UpdateOrderItemDto): OrderItem {
-    const item = this.findOneItem(id);
+  async updateItem(id: number, dto: UpdateOrderItemDto): Promise<OrderItem> {
+    const item = await this.items.findOneBy({ id });
+
+    if (!item) {
+      throw new NotFoundException(`Order item ${id} not found`);
+    }
 
     if (dto.price !== undefined) {
       item.price = this.requirePrice(dto.price);
@@ -190,64 +142,108 @@ export class OrdersService {
       item.discount = this.requireDiscount(dto.discount);
     }
 
-    this.refreshTotal(item.orderId);
-    return item;
+    await this.items.save(item);
+    await this.refreshTotal(item.orderId);
+    return this.toItem(item);
   }
 
-  applyItemDiscount(id: number, discount: number): OrderItem {
+  async applyItemDiscount(id: number, discount: number): Promise<OrderItem> {
     return this.updateItem(id, { discount });
   }
 
-  private addItem(dto: CreateOrderItemDto): OrderItem {
-    this.findOneOrder(dto.orderId);
+  private async addItem(dto: CreateOrderItemDto): Promise<OrderItem> {
+    await this.findOneOrder(dto.orderId);
 
-    const item: OrderItem = {
-      id: this.nextItemId++,
-      orderId: dto.orderId,
-      productId: dto.productId,
-      name: dto.name,
-      price: this.requirePrice(dto.price),
-      quantity: this.requireQuantity(dto.quantity),
-      discount: this.requireDiscount(dto.discount ?? 0),
-    };
+    const item = await this.items.save(
+      this.items.create({
+        orderId: dto.orderId,
+        productId: dto.productId,
+        name: dto.name,
+        price: this.requirePrice(dto.price),
+        quantity: this.requireQuantity(dto.quantity),
+        discount: this.requireDiscount(dto.discount ?? 0),
+      }),
+    );
 
-    this.items.push(item);
-    this.refreshTotal(item.orderId);
-    return item;
+    await this.refreshTotal(item.orderId);
+    return this.toItem(item);
   }
 
-  private withItems(order: Order): OrderWithItems {
+  private async withItems(order: OrderEntity): Promise<OrderWithItems> {
+    const items = await this.items.find({
+      where: { orderId: order.id },
+      order: { id: 'ASC' },
+    });
+
     return {
-      ...order,
-      items: this.items.filter((item) => item.orderId === order.id),
+      ...this.toOrder(order),
+      items: items.map((item) => this.toItem(item)),
     };
   }
 
-  private patchOrder(id: number, patch: Partial<Order>) {
-    const order = this.orders.find((item) => item.id === id);
+  private async nextOrderCode() {
+    const rows = await this.orders.find();
+    let max = 1120;
 
-    if (!order) {
-      throw new NotFoundException(`Order ${id} not found`);
+    for (const row of rows) {
+      const match = /^VER-(\d+)$/.exec(row.orderId);
+      if (match) {
+        max = Math.max(max, Number(match[1]));
+      }
     }
 
-    Object.assign(order, patch);
+    return `VER-${max + 1}`;
   }
 
-  private refreshTotal(orderId: number) {
-    const totalPrice = this.items
-      .filter((item) => item.orderId === orderId)
-      .reduce((sum, item) => sum + this.lineTotal(item), 0);
+  private async refreshTotal(orderId: number) {
+    const items = await this.items.find({ where: { orderId } });
+    const totalPrice = Number(
+      items.reduce((sum, item) => sum + this.lineTotal(item), 0).toFixed(2),
+    );
 
-    this.patchOrder(orderId, { totalPrice: Number(totalPrice.toFixed(2)) });
+    const order = await this.orders.findOneBy({ id: orderId });
+
+    if (!order) {
+      throw new NotFoundException(`Order ${orderId} not found`);
+    }
+
+    order.totalPrice = totalPrice;
+    await this.orders.save(order);
   }
 
-  private lineTotal(item: OrderItem) {
+  private toOrder(row: OrderEntity): Order {
+    return {
+      id: row.id,
+      orderId: row.orderId,
+      userId: row.userId,
+      payment: row.payment,
+      status: row.status,
+      totalPrice: row.totalPrice,
+      createdAt: row.createdAt,
+    };
+  }
+
+  private toItem(row: OrderItemEntity): OrderItem {
+    return {
+      id: row.id,
+      orderId: row.orderId,
+      productId: row.productId,
+      name: row.name,
+      price: row.price,
+      quantity: row.quantity,
+      discount: row.discount,
+    };
+  }
+
+  private lineTotal(item: OrderItemEntity) {
     return item.price * item.quantity * (1 - item.discount / 100);
   }
 
   private requirePrice(price: number) {
     if (typeof price !== 'number' || Number.isNaN(price) || price < 0) {
-      throw new BadRequestException('Price must be a number greater than or equal to 0');
+      throw new BadRequestException(
+        'Price must be a number greater than or equal to 0',
+      );
     }
 
     return price;
