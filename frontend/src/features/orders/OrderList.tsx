@@ -2,6 +2,7 @@ import type { Order } from '../../types/order'
 
 type OrderListProps = {
   orders: Order[]
+  showUser?: boolean
 }
 
 function formatPrice(price: number) {
@@ -31,7 +32,7 @@ function formatItems(order: Order, limit = 40) {
   return `${text.slice(0, limit).trimEnd()}...`
 }
 
-export function OrderList({ orders }: OrderListProps) {
+export function OrderList({ orders, showUser = false }: OrderListProps) {
   if (orders.length === 0) {
     return <p className="status">Nenhuma compra ainda.</p>
   }
@@ -42,6 +43,7 @@ export function OrderList({ orders }: OrderListProps) {
         <thead>
           <tr>
             <th>Pedido</th>
+            {showUser ? <th>Cliente</th> : null}
             <th>Data</th>
             <th>Itens</th>
             <th>Pagamento</th>
@@ -53,6 +55,7 @@ export function OrderList({ orders }: OrderListProps) {
           {orders.map((order) => (
             <tr key={order.id}>
               <td>{order.orderId}</td>
+              {showUser ? <td>{order.userId}</td> : null}
               <td>{formatDay(order.createdAt)}</td>
               <td className="order-items" title={itemsLabel(order)}>
                 {formatItems(order)}

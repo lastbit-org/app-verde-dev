@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Button,
   Eyebrow,
@@ -22,11 +22,27 @@ function formatPrice(price: number) {
   })
 }
 
+function matchesQuery(product: { id: number; name: string }, query: string) {
+  const needle = query.trim().toLowerCase()
+  if (!needle) {
+    return true
+  }
+
+  return (
+    product.name.toLowerCase().includes(needle) ||
+    String(product.id).includes(needle)
+  )
+}
+
 export function HomeStore() {
   const navigate = useNavigate()
+  const [params] = useSearchParams()
+  const query = params.get('q') ?? ''
   const { addProduct } = useCart()
   const { products, loading, error } = useProducts()
   const featured = products[0]
+  const searched = products.filter((product) => matchesQuery(product, query))
+  const deals = searched.filter((product) => (product.discount ?? 0) > 0)
   const copy = productCopy(featured?.id ?? 1)
   const heroPhoto = featured
     ? { src: featured.image.url, alt: featured.name }
@@ -104,6 +120,30 @@ export function HomeStore() {
       {loading ? <p className="status">Carregando a loja…</p> : null}
       {error ? <p className="status status-error">{error}</p> : null}
 
+      <Section id="categorias" eyebrow="Navegar" title="Categorias">
+        <Paragraph>
+          Atalhos da vitrine. Cada um leva a um recorte da loja.
+        </Paragraph>
+        <p className="row product-links">
+          <Link to="/#galeria">Todas as peças</Link>
+          <Link to="/#promocoes">Em promoção</Link>
+          <Link to="/#favoritos">Escolhas da casa</Link>
+        </p>
+      </Section>
+
+      {deals.length > 0 ? (
+        <Section id="promocoes" eyebrow="Ofertas" title="Promoções">
+          <Paragraph>
+            Peças com desconto agora. O card abre o detalhe do produto.
+          </Paragraph>
+          <ProductGallery products={deals} />
+        </Section>
+      ) : (
+        <Section id="promocoes" eyebrow="Ofertas" title="Promoções">
+          <Paragraph>Nenhuma promoção ativa no momento.</Paragraph>
+        </Section>
+      )}
+
       {products.length > 0 ? (
         <Section id="favoritos" eyebrow="Coleção" title="Escolhas da casa">
           <Paragraph>
@@ -115,12 +155,18 @@ export function HomeStore() {
 
       <Section id="galeria" eyebrow="Loja" title="Todas as peças">
         <Paragraph>
-          A vitrine completa. O nome e a foto abrem a página do produto.
+          {query.trim()
+            ? `Resultados para “${query.trim()}”. O nome e a foto abrem a página do produto.`
+            : 'A vitrine completa. O nome e a foto abrem a página do produto.'}
         </Paragraph>
-        {products.length > 0 ? (
-          <ProductGallery products={products} />
+        {searched.length > 0 ? (
+          <ProductGallery products={searched} />
         ) : !loading ? (
-          <p className="status">Nenhum produto no catálogo ainda.</p>
+          <p className="status">
+            {query.trim()
+              ? `Nenhuma peça encontrada para “${query.trim()}”.`
+              : 'Nenhum produto no catálogo ainda.'}
+          </p>
         ) : null}
         <p className="row product-links">
           <Link to="/products">Ver tabela de produtos</Link>

@@ -39,7 +39,9 @@ export function RequireAuth({ children, roles }: RequireAuthProps) {
           <section className="hero">
             <Title as="h1">Acesso restrito.</Title>
             <Paragraph variant="lead">
-              Esta página é só para administradores e parceiros.
+              {roles.length === 1 && roles[0] === 'admin'
+                ? 'Esta página é só para administradores.'
+                : 'Esta página é só para administradores e parceiros.'}
             </Paragraph>
           </section>
           <p className="row product-links">

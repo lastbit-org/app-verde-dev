@@ -6,6 +6,10 @@ export function canManageCatalog(role?: UserRole | null) {
   return role !== undefined && role !== null && CATALOG_ROLES.includes(role)
 }
 
+export function isAdmin(role?: UserRole | null) {
+  return role === 'admin'
+}
+
 export function roleLabel(role: UserRole) {
   if (role === 'admin') {
     return 'Administrador'

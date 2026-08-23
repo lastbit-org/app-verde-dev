@@ -14,7 +14,7 @@ export function LoginPage() {
   }
 
   return (
-    <AppChrome withSidebars={false}>
+    <AppChrome>
       <main>
         <section className="hero">
           <Eyebrow>Acesso</Eyebrow>

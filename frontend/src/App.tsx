@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom'
 import { RequireAuth } from './features/auth/RequireAuth'
 import { FavoritesPage } from './pages/FavoritesPage'
 import { LoginPage } from './pages/LoginPage'
+import { OrdersTablePage } from './pages/OrdersTablePage'
 import { PaymentPage } from './pages/PaymentPage'
 import { ProductPage } from './pages/ProductPage'
 import { ProductsTablePage } from './pages/ProductsTablePage'
@@ -11,6 +12,7 @@ import { PurchasesPage } from './pages/PurchasesPage'
 import { ShoppingCartPage } from './pages/ShoppingCartPage'
 import { StorePage } from './pages/StorePage'
 import { UserPage } from './pages/UserPage'
+import { UsersTablePage } from './pages/UsersTablePage'
 
 function App() {
   return (
@@ -30,6 +32,22 @@ function App() {
         element={
           <RequireAuth roles={['admin', 'partner']}>
             <ProductsTablePage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/users"
+        element={
+          <RequireAuth roles={['admin']}>
+            <UsersTablePage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <RequireAuth roles={['admin']}>
+            <OrdersTablePage />
           </RequireAuth>
         }
       />
