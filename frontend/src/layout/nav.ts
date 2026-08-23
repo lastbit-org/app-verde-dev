@@ -21,10 +21,12 @@ export const accountNav: NavItem[] = [
   { href: '/user', label: 'Conta', icon: 'user' },
   { href: '/purchases', label: 'Compras', icon: 'receipt' },
   { href: '/favorites', label: 'Favoritos', icon: 'heart' },
+  { href: '/cart', label: 'Carrinho', icon: 'bag' },
 ]
 
 export const guestNav: NavItem[] = [
   { href: '/login', label: 'Entrar', icon: 'user' },
+  { href: '/cart', label: 'Carrinho', icon: 'bag' },
 ]
 
 export const adminNav: NavItem[] = [
