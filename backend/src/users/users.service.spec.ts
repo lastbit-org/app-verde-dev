@@ -11,8 +11,8 @@ describe('UsersService', () => {
 
   beforeEach(() => {
     const users = fakeRepo([
-      { id: 1, name: 'Ana Silva', email: 'ana@example.com' },
-      { id: 2, name: 'Bruno Costa', email: 'bruno@example.com' },
+      { id: 1, name: 'Ana Silva', email: 'ana@example.com', cpf: '12345678900' },
+      { id: 2, name: 'Bruno Costa', email: 'bruno@example.com', cpf: null },
     ]);
     service = new UsersService(users as never);
   });
@@ -26,6 +26,7 @@ describe('UsersService', () => {
       id: 1,
       name: 'Ana Silva',
       email: 'ana@example.com',
+      cpf: '123.456.789-00',
     });
   });
 
@@ -43,6 +44,7 @@ describe('UsersService', () => {
       id: 3,
       name: 'Carla Souza',
       email: 'carla@example.com',
+      cpf: null,
     });
     expect(await service.findAll()).toHaveLength(3);
   });
@@ -63,5 +65,30 @@ describe('UsersService', () => {
     await expect(service.findByEmail('nina.v@example.com')).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
+  });
+
+  it('updates name, email and cpf', async () => {
+    const user = await service.update(1, {
+      name: 'Ana Lima',
+      email: 'ana.lima@example.com',
+      cpf: '987.654.321-00',
+    });
+
+    expect(user).toEqual({
+      id: 1,
+      name: 'Ana Lima',
+      email: 'ana.lima@example.com',
+      cpf: '987.654.321-00',
+    });
+  });
+
+  it('rejects an email already used by another account', async () => {
+    await expect(
+      service.update(1, {
+        name: 'Ana Silva',
+        email: 'bruno@example.com',
+        cpf: '123.456.789-00',
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 });

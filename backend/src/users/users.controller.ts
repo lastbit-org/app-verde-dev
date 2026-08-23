@@ -4,9 +4,10 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
-import type { CreateUserDto, LoginDto, User } from './user';
+import type { CreateUserDto, LoginDto, UpdateUserDto, User } from './user';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -31,5 +32,13 @@ export class UsersController {
   @Post('login')
   login(@Body() dto: LoginDto): Promise<User> {
     return this.usersService.findByEmail(dto.email);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateUserDto,
+  ): Promise<User> {
+    return this.usersService.update(id, dto);
   }
 }

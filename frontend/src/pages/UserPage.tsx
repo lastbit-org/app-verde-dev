@@ -11,7 +11,16 @@ import { useCurrentUser } from '../features/user/useCurrentUser'
 import { AppChrome, PageFooter } from '../layout/AppChrome'
 
 export function UserPage() {
-  const { user, isDemo, loading, error, clear } = useCurrentUser()
+  const {
+    user,
+    isDemo,
+    loading,
+    saving,
+    error,
+    message,
+    updateProfile,
+    clear,
+  } = useCurrentUser()
   const session = useSession()
   const { orders, loading: ordersLoading, error: ordersError } = useOrders()
   const navigate = useNavigate()
@@ -36,7 +45,7 @@ export function UserPage() {
         </section>
 
         {loading ? <p className="status">Carregando usuário…</p> : null}
-        {error ? <p className="status status-error">{error}</p> : null}
+        {error && !user ? <p className="status status-error">{error}</p> : null}
 
         {user ? (
           <>
@@ -45,7 +54,15 @@ export function UserPage() {
               <UserStats orders={mine} />
             </div>
 
-            <AccountSection name={user.name} email={user.email}>
+            <AccountSection
+              name={user.name}
+              email={user.email}
+              cpf={user.cpf}
+              saving={saving}
+              error={error}
+              message={message}
+              onSavePersonal={updateProfile}
+            >
               <UserPreferences />
             </AccountSection>
 

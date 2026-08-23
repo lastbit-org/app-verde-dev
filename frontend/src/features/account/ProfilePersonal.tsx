@@ -1,25 +1,45 @@
 import type { FormEvent } from 'react'
 import { Button, Field, Input, Title } from '../../components'
+import type { UpdateUserInput } from '../../types/user'
 
 type ProfilePersonalProps = {
   name?: string
   email?: string
-  cpf?: string
+  cpf?: string | null
+  saving?: boolean
+  error?: string | null
+  message?: string | null
+  onSave?: (payload: UpdateUserInput) => Promise<boolean>
 }
 
 export function ProfilePersonal({
   name = 'Ana Silva',
   email = 'ana@example.com',
-  cpf = '123.456.789-00',
+  cpf = '',
+  saving = false,
+  error = null,
+  message = null,
+  onSave,
 }: ProfilePersonalProps) {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    if (!onSave) {
+      return
+    }
+
+    const data = new FormData(event.currentTarget)
+    await onSave({
+      name: String(data.get('name') ?? ''),
+      email: String(data.get('email') ?? ''),
+      cpf: String(data.get('cpf') ?? ''),
+    })
   }
 
   return (
     <div className="panel">
       <Title as="h4">Informações pessoais</Title>
-      <form className="form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={(event) => void handleSubmit(event)}>
         <Field label="Nome">
           <Input
             type="text"
@@ -45,14 +65,18 @@ export function ProfilePersonal({
             inputMode="numeric"
             autoComplete="off"
             placeholder="000.000.000-00"
-            defaultValue={cpf}
+            defaultValue={cpf ?? ''}
             required
           />
         </Field>
         <div className="row">
-          <Button type="submit">Salvar</Button>
+          <Button type="submit" disabled={saving}>
+            {saving ? 'Salvando…' : 'Salvar'}
+          </Button>
         </div>
       </form>
+      {error ? <p className="status status-error">{error}</p> : null}
+      {message ? <p className="status status-ok">{message}</p> : null}
     </div>
   )
 }

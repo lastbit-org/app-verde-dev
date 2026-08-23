@@ -10,4 +10,7 @@ export class UserEntity {
 
   @Column({ unique: true })
   email: string;
+
+  @Column({ type: 'varchar', length: 11, unique: true, nullable: true })
+  cpf: string | null;
 }

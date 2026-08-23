@@ -15,7 +15,10 @@ export function readSession(): User | null {
       return null
     }
 
-    return parsed
+    return {
+      ...parsed,
+      cpf: parsed.cpf ?? null,
+    }
   } catch {
     return null
   }
