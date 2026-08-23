@@ -6,6 +6,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import type { User } from '../users/user';
+import { isAdmin } from '../users/roles';
+import { ProductEntity } from '../products/product.entity';
 import type {
   CreateOrderDto,
   Order,
@@ -13,11 +16,7 @@ import type {
   OrderWithItems,
   UpdateOrderDto,
 } from './order';
-import type {
-  CreateOrderItemDto,
-  OrderItem,
-  UpdateOrderItemDto,
-} from './order-item';
+import type { OrderItem, UpdateOrderItemDto } from './order-item';
 import { OrderItemEntity } from './order-item.entity';
 import { OrderEntity } from './order.entity';
 
@@ -35,6 +34,8 @@ export class OrdersService {
     private readonly orders: Repository<OrderEntity>,
     @InjectRepository(OrderItemEntity)
     private readonly items: Repository<OrderItemEntity>,
+    @InjectRepository(ProductEntity)
+    private readonly products: Repository<ProductEntity>,
   ) {}
 
   async findAllOrders(userId?: number): Promise<OrderWithItems[]> {
@@ -45,14 +46,20 @@ export class OrdersService {
     return Promise.all(rows.map((row) => this.withItems(row)));
   }
 
-  async requireOwnedOrder(id: number, userId: number): Promise<OrderWithItems> {
+  async requireOrderAccess(id: number, user: User): Promise<OrderWithItems> {
     const order = await this.findOneOrder(id);
 
-    if (order.userId !== userId) {
+    if (order.userId !== user.id && !isAdmin(user.role)) {
       throw new ForbiddenException();
     }
 
     return order;
+  }
+
+  async requireOwnedItem(id: number, user: User): Promise<OrderItem> {
+    const item = await this.findOneItem(id);
+    await this.requireOrderAccess(item.orderId, user);
+    return item;
   }
 
   async findOneOrder(id: number): Promise<OrderWithItems> {
@@ -65,11 +72,11 @@ export class OrdersService {
     return this.withItems(order);
   }
 
-  async createOrder(dto: CreateOrderDto): Promise<OrderWithItems> {
+  async createOrder(userId: number, dto: CreateOrderDto): Promise<OrderWithItems> {
     const order = await this.orders.save(
       this.orders.create({
         orderId: await this.nextOrderCode(),
-        userId: dto.userId,
+        userId,
         payment: dto.payment,
         status: 'preparando',
         totalPrice: 0,
@@ -77,8 +84,15 @@ export class OrdersService {
       }),
     );
 
-    for (const line of dto.items ?? []) {
-      await this.addItem({ ...line, orderId: order.id });
+    try {
+      for (const line of dto.items ?? []) {
+        await this.addItem(order.id, line.productId, line.quantity);
+      }
+    } catch (error) {
+      await this.restoreOrderStock(order.id);
+      await this.items.delete({ orderId: order.id });
+      await this.orders.remove(order);
+      throw error;
     }
 
     return this.findOneOrder(order.id);
@@ -109,13 +123,17 @@ export class OrdersService {
     return this.findOneOrder(id);
   }
 
-  async findAllItems(orderId?: number): Promise<OrderItem[]> {
+  async findAllItems(orderId: number | undefined, user: User): Promise<OrderItem[]> {
     if (orderId === undefined) {
+      if (!isAdmin(user.role)) {
+        throw new ForbiddenException();
+      }
+
       const rows = await this.items.find({ order: { id: 'ASC' } });
       return rows.map((row) => this.toItem(row));
     }
 
-    await this.findOneOrder(orderId);
+    await this.requireOrderAccess(orderId, user);
     const rows = await this.items.find({
       where: { orderId },
       order: { id: 'ASC' },
@@ -133,27 +151,30 @@ export class OrdersService {
     return this.toItem(item);
   }
 
-  async createItem(dto: CreateOrderItemDto): Promise<OrderItem> {
-    return this.addItem(dto);
+  async createItem(
+    dto: { orderId: number; productId: number; quantity: number },
+    user: User,
+  ): Promise<OrderItem> {
+    await this.requireOrderAccess(dto.orderId, user);
+    return this.addItem(dto.orderId, dto.productId, dto.quantity);
   }
 
-  async updateItem(id: number, dto: UpdateOrderItemDto): Promise<OrderItem> {
+  async updateItem(
+    id: number,
+    dto: UpdateOrderItemDto,
+    user: User,
+  ): Promise<OrderItem> {
+    await this.requireOwnedItem(id, user);
     const item = await this.items.findOneBy({ id });
 
     if (!item) {
       throw new NotFoundException(`Order item ${id} not found`);
     }
 
-    if (dto.price !== undefined) {
-      item.price = this.requirePrice(dto.price);
-    }
-
     if (dto.quantity !== undefined) {
-      item.quantity = this.requireQuantity(dto.quantity);
-    }
-
-    if (dto.discount !== undefined) {
-      item.discount = this.requireDiscount(dto.discount);
+      const quantity = this.requireQuantity(dto.quantity);
+      await this.adjustStock(item.productId, item.quantity, quantity);
+      item.quantity = quantity;
     }
 
     await this.items.save(item);
@@ -161,21 +182,50 @@ export class OrdersService {
     return this.toItem(item);
   }
 
-  async applyItemDiscount(id: number, discount: number): Promise<OrderItem> {
-    return this.updateItem(id, { discount });
+  async applyItemDiscount(
+    id: number,
+    discount: number,
+    user: User,
+  ): Promise<OrderItem> {
+    await this.requireOwnedItem(id, user);
+    const item = await this.items.findOneBy({ id });
+
+    if (!item) {
+      throw new NotFoundException(`Order item ${id} not found`);
+    }
+
+    item.discount = this.requireDiscount(discount);
+    await this.items.save(item);
+    await this.refreshTotal(item.orderId);
+    return this.toItem(item);
   }
 
-  private async addItem(dto: CreateOrderItemDto): Promise<OrderItem> {
-    await this.findOneOrder(dto.orderId);
+  private async addItem(
+    orderId: number,
+    productId: number,
+    quantity: number,
+  ): Promise<OrderItem> {
+    await this.findOneOrder(orderId);
+    const product = await this.requireProduct(productId);
+    const qty = this.requireQuantity(quantity);
+
+    if (product.stock < qty) {
+      throw new BadRequestException(
+        `Insufficient stock for product ${productId}`,
+      );
+    }
+
+    product.stock -= qty;
+    await this.products.save(product);
 
     const item = await this.items.save(
       this.items.create({
-        orderId: dto.orderId,
-        productId: dto.productId,
-        name: dto.name,
-        price: this.requirePrice(dto.price),
-        quantity: this.requireQuantity(dto.quantity),
-        discount: this.requireDiscount(dto.discount ?? 0),
+        orderId,
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: qty,
+        discount: product.discount,
       }),
     );
 
@@ -225,6 +275,52 @@ export class OrdersService {
     await this.orders.save(order);
   }
 
+  private async requireProduct(id: number) {
+    const product = await this.products.findOneBy({ id });
+
+    if (!product) {
+      throw new NotFoundException(`Product ${id} not found`);
+    }
+
+    return product;
+  }
+
+  private async adjustStock(
+    productId: number,
+    previous: number,
+    next: number,
+  ) {
+    const delta = next - previous;
+
+    if (delta === 0) {
+      return;
+    }
+
+    const product = await this.requireProduct(productId);
+
+    if (delta > 0 && product.stock < delta) {
+      throw new BadRequestException(
+        `Insufficient stock for product ${productId}`,
+      );
+    }
+
+    product.stock -= delta;
+    await this.products.save(product);
+  }
+
+  private async restoreOrderStock(orderId: number) {
+    const items = await this.items.find({ where: { orderId } });
+
+    for (const item of items) {
+      const product = await this.products.findOneBy({ id: item.productId });
+      if (!product) {
+        continue;
+      }
+      product.stock += item.quantity;
+      await this.products.save(product);
+    }
+  }
+
   private toOrder(row: OrderEntity): Order {
     return {
       id: row.id,
@@ -251,16 +347,6 @@ export class OrdersService {
 
   private lineTotal(item: OrderItemEntity) {
     return item.price * item.quantity * (1 - item.discount / 100);
-  }
-
-  private requirePrice(price: number) {
-    if (typeof price !== 'number' || Number.isNaN(price) || price < 0) {
-      throw new BadRequestException(
-        'Price must be a number greater than or equal to 0',
-      );
-    }
-
-    return price;
   }
 
   private requireQuantity(quantity: number) {

@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ApiError } from '../../api/client'
 import { loginUser, signupUser } from '../../api/auth'
 import type { AuthMode, AuthPayload } from '../../types/auth'
+import { safeNextPath } from './roles'
 import { useSession } from './SessionProvider'
 
 export function useAuth() {
@@ -12,6 +13,7 @@ export function useAuth() {
   const [message, setMessage] = useState<string | null>(null)
   const { save } = useSession()
   const navigate = useNavigate()
+  const [params] = useSearchParams()
 
   const switchMode = useCallback((next: AuthMode) => {
     setMode(next)
@@ -40,7 +42,7 @@ export function useAuth() {
 
         save(user)
         setMessage(`Olá, ${user.name}.`)
-        navigate('/user')
+        navigate(safeNextPath(params.get('next')))
       } catch (err) {
         if (err instanceof ApiError && err.status === 409) {
           setError('Este e-mail já está em uso.')
@@ -55,7 +57,7 @@ export function useAuth() {
         setLoading(false)
       }
     },
-    [mode, navigate, save],
+    [mode, navigate, params, save],
   )
 
   return { mode, switchMode, loading, error, message, submit }

@@ -1,16 +1,19 @@
 import { Link, NavLink } from 'react-router-dom'
+import type { NavAction } from '../layout/nav'
 
 type MenuItem = {
   href: string
   label: string
+  action?: NavAction
 }
 
 type MenuBarProps = {
   brand: string
   items: MenuItem[]
+  onLogout?: () => void
 }
 
-export function MenuBar({ brand, items }: MenuBarProps) {
+export function MenuBar({ brand, items, onLogout }: MenuBarProps) {
   return (
     <header className="menubar">
       <Link className="brand" to="/">
@@ -19,7 +22,15 @@ export function MenuBar({ brand, items }: MenuBarProps) {
       </Link>
       <nav className="menubar-nav" aria-label="Principal">
         {items.map((item) =>
-          item.href.startsWith('/') && !item.href.includes('#') ? (
+          item.action === 'logout' ? (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => onLogout?.()}
+            >
+              {item.label}
+            </button>
+          ) : item.href.startsWith('/') && !item.href.includes('#') ? (
             <NavLink
               key={item.href}
               to={item.href}

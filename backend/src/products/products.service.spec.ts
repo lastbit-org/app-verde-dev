@@ -12,6 +12,7 @@ describe('ProductsService', () => {
         name: 'Oliveira em vaso sage',
         price: 248,
         discount: 0,
+        stock: 12,
         imageUrl: 'https://picsum.photos/seed/oliveira/600/800',
         imageName: 'oliveira-vaso-sage.jpg',
       },
@@ -20,6 +21,7 @@ describe('ProductsService', () => {
         name: 'Vaso de cerâmica artesanal',
         price: 186,
         discount: 0,
+        stock: 8,
         imageUrl: 'https://picsum.photos/seed/vaso/600/800',
         imageName: 'vaso-ceramica.jpg',
       },
@@ -28,6 +30,7 @@ describe('ProductsService', () => {
         name: 'Kit de cuidados',
         price: 92,
         discount: 0,
+        stock: 24,
         imageUrl: 'https://picsum.photos/seed/cuidados/600/800',
         imageName: 'kit-cuidados.jpg',
       },
@@ -36,6 +39,7 @@ describe('ProductsService', () => {
         name: 'Planta de interior',
         price: 164,
         discount: 0,
+        stock: 6,
         imageUrl: 'https://picsum.photos/seed/planta/600/800',
         imageName: 'planta-interior.jpg',
       },
@@ -44,6 +48,7 @@ describe('ProductsService', () => {
         name: 'Composição sobre linho',
         price: 210,
         discount: 0,
+        stock: 4,
         imageUrl: 'https://picsum.photos/seed/linho/600/800',
         imageName: 'composicao-linho.jpg',
       },
@@ -61,6 +66,7 @@ describe('ProductsService', () => {
       name: 'Oliveira em vaso sage',
       price: 248,
       discount: 0,
+      stock: 12,
       image: {
         url: 'https://picsum.photos/seed/oliveira/600/800',
         name: 'oliveira-vaso-sage.jpg',
@@ -76,6 +82,7 @@ describe('ProductsService', () => {
     const product = await service.create({
       name: 'Ramo seco',
       price: 48,
+      stock: 3,
       image: {
         url: 'https://picsum.photos/seed/ramo/600/800',
         name: 'ramo-seco.jpg',
@@ -85,7 +92,33 @@ describe('ProductsService', () => {
     expect(product.id).toBe(6);
     expect(product.name).toBe('Ramo seco');
     expect(product.discount).toBe(0);
+    expect(product.stock).toBe(3);
     expect(await service.findAll()).toHaveLength(6);
+  });
+
+  it('updates a product', async () => {
+    const product = await service.update(1, {
+      name: 'Oliveira revisada',
+      price: 260,
+      discount: 10,
+      stock: 9,
+      image: {
+        url: 'https://picsum.photos/seed/oliveira2/600/800',
+        name: 'oliveira-revisada.jpg',
+      },
+    });
+
+    expect(product).toEqual({
+      id: 1,
+      name: 'Oliveira revisada',
+      price: 260,
+      discount: 10,
+      stock: 9,
+      image: {
+        url: 'https://picsum.photos/seed/oliveira2/600/800',
+        name: 'oliveira-revisada.jpg',
+      },
+    });
   });
 
   it('applies a discount', async () => {

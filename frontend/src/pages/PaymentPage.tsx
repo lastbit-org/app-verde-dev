@@ -1,20 +1,22 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { createOrderInput } from '../api/orders'
+import { ApiError } from '../api/client'
 import { Eyebrow, Paragraph, Title } from '../components'
 import { useSession } from '../features/auth/SessionProvider'
 import { CheckoutPage } from '../features/cart/CheckoutPage'
 import { useCart } from '../features/cart/CartProvider'
+import { writeLastOrder } from '../features/orders/lastOrder'
 import { useOrders } from '../features/orders/useOrders'
 import { AppChrome, PageFooter } from '../layout/AppChrome'
 
 export function PaymentPage() {
-  const { items, total } = useCart()
+  const { items, total, clear } = useCart()
   const { user, loading: sessionLoading } = useSession()
   const { addOrder } = useOrders(Boolean(user))
   const [paying, setPaying] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [createdId, setCreatedId] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   async function pay(payment: string) {
     if (!user) {
@@ -30,18 +32,22 @@ export function PaymentPage() {
         createOrderInput(
           items.map((item) => ({
             productId: item.id,
-            name: item.name,
-            price: item.price,
             quantity: item.quantity,
-            discount: 0,
           })),
           payment,
-          user.id,
         ),
       )
-      setCreatedId(order.orderId)
-    } catch {
-      setError('Não foi possível registrar o pedido. Confira se a API está no ar.')
+      writeLastOrder(order)
+      clear()
+      navigate('/checkout/confirm', { state: { order } })
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 400) {
+        setError('Estoque insuficiente ou item inválido. Atualize o carrinho.')
+      } else if (err instanceof ApiError && err.status === 401) {
+        setError('Entre na conta para registrar o pedido.')
+      } else {
+        setError('Não foi possível registrar o pedido. Confira se a API está no ar.')
+      }
     } finally {
       setPaying(false)
     }
@@ -86,12 +92,6 @@ export function PaymentPage() {
               onPay={(payment) => void pay(payment)}
             />
             {error ? <p className="status status-error">{error}</p> : null}
-            {createdId ? (
-              <p className="status status-ok">
-                Pedido {createdId} registrado.{' '}
-                <Link to="/purchases">Ver minhas compras</Link>
-              </p>
-            ) : null}
           </>
         )}
       </main>

@@ -20,6 +20,9 @@ export class ProductEntity {
   @Column({ default: 0 })
   discount: number;
 
+  @Column({ type: 'int', default: 12 })
+  stock: number;
+
   @Column()
   imageUrl: string;
 

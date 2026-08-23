@@ -15,10 +15,20 @@ function formatDay(value: string) {
   return new Date(`${value}T12:00:00`).toLocaleDateString('pt-BR')
 }
 
-function formatItems(order: Order) {
+function itemsLabel(order: Order) {
   return order.items
     .map((item) => `${item.quantity}× ${item.name}`)
     .join(', ')
+}
+
+function formatItems(order: Order, limit = 40) {
+  const text = itemsLabel(order)
+
+  if (text.length <= limit) {
+    return text
+  }
+
+  return `${text.slice(0, limit).trimEnd()}...`
 }
 
 export function OrderList({ orders }: OrderListProps) {
@@ -44,7 +54,9 @@ export function OrderList({ orders }: OrderListProps) {
             <tr key={order.id}>
               <td>{order.orderId}</td>
               <td>{formatDay(order.createdAt)}</td>
-              <td className="order-items">{formatItems(order)}</td>
+              <td className="order-items" title={itemsLabel(order)}>
+                {formatItems(order)}
+              </td>
               <td>{order.payment}</td>
               <td>{order.status}</td>
               <td>{formatPrice(order.totalPrice)}</td>

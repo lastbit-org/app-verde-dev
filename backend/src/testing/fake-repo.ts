@@ -21,6 +21,14 @@ export function fakeRepo<T extends Row>(seed: T[] = []) {
     findOneBy: jest.fn(async (where: Partial<T>) => {
       return rows.find((row) => matches(row, where)) ?? null;
     }),
+    delete: jest.fn(async (where: Partial<T>) => {
+      for (let index = rows.length - 1; index >= 0; index -= 1) {
+        if (matches(rows[index], where)) {
+          rows.splice(index, 1);
+        }
+      }
+      return { affected: 1 };
+    }),
     create: jest.fn((dto: Partial<T>) => ({ ...dto }) as T),
     save: jest.fn(async (entity: T) => {
       if (!entity.id) {

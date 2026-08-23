@@ -23,14 +23,10 @@ export type Order = {
 
 export type CreateOrderLineInput = {
   productId: number
-  name: string
-  price: number
   quantity: number
-  discount?: number
 }
 
 export type CreateOrderInput = {
-  userId: number
   payment: string
   createdAt?: string
   items?: CreateOrderLineInput[]

@@ -27,14 +27,27 @@ export class SeedService implements OnModuleInit {
   async onModuleInit() {
     if ((await this.users.count()) > 0) {
       await this.ensurePasswords();
+      await this.ensureDemoRoles();
       return;
     }
 
     const passwordHash = await hashPassword(DEMO_PASSWORD);
 
     await this.users.save([
-      { id: 1, name: 'Ana Silva', email: 'ana@example.com', passwordHash },
-      { id: 2, name: 'Bruno Costa', email: 'bruno@example.com', passwordHash },
+      {
+        id: 1,
+        name: 'Ana Silva',
+        email: 'ana@example.com',
+        passwordHash,
+        role: 'admin',
+      },
+      {
+        id: 2,
+        name: 'Bruno Costa',
+        email: 'bruno@example.com',
+        passwordHash,
+        role: 'partner',
+      },
     ]);
 
     await this.products.save([
@@ -43,6 +56,7 @@ export class SeedService implements OnModuleInit {
         name: 'Oliveira em vaso sage',
         price: 248,
         discount: 0,
+        stock: 12,
         imageUrl: 'https://picsum.photos/seed/oliveira/600/800',
         imageName: 'oliveira-vaso-sage.jpg',
       },
@@ -51,6 +65,7 @@ export class SeedService implements OnModuleInit {
         name: 'Vaso de cerâmica artesanal',
         price: 186,
         discount: 0,
+        stock: 8,
         imageUrl: 'https://picsum.photos/seed/vaso/600/800',
         imageName: 'vaso-ceramica.jpg',
       },
@@ -59,6 +74,7 @@ export class SeedService implements OnModuleInit {
         name: 'Kit de cuidados',
         price: 92,
         discount: 0,
+        stock: 24,
         imageUrl: 'https://picsum.photos/seed/cuidados/600/800',
         imageName: 'kit-cuidados.jpg',
       },
@@ -67,6 +83,7 @@ export class SeedService implements OnModuleInit {
         name: 'Planta de interior',
         price: 164,
         discount: 0,
+        stock: 6,
         imageUrl: 'https://picsum.photos/seed/planta/600/800',
         imageName: 'planta-interior.jpg',
       },
@@ -75,6 +92,7 @@ export class SeedService implements OnModuleInit {
         name: 'Composição sobre linho',
         price: 210,
         discount: 0,
+        stock: 4,
         imageUrl: 'https://picsum.photos/seed/linho/600/800',
         imageName: 'composicao-linho.jpg',
       },
@@ -173,6 +191,21 @@ export class SeedService implements OnModuleInit {
     }
 
     this.logger.log(`Password hash set for ${missing.length} existing user(s).`);
+  }
+
+  private async ensureDemoRoles() {
+    const assignments = [
+      { email: 'ana@example.com', role: 'admin' as const },
+      { email: 'bruno@example.com', role: 'partner' as const },
+    ];
+
+    for (const assignment of assignments) {
+      const user = await this.users.findOneBy({ email: assignment.email });
+      if (user && user.role !== assignment.role) {
+        user.role = assignment.role;
+        await this.users.save(user);
+      }
+    }
   }
 
   private async resetSequence(table: string) {

@@ -55,7 +55,7 @@ export function ProductsSection() {
         <ProductViewer images={viewerImages} />
         <div className="product-aside">
           <ProductBuyBox
-            stock={12}
+            stock={product?.stock ?? 0}
             deliveryDate="2026-08-28"
             seller="Verde Atelier"
             onBuy={() => go('/checkout')}

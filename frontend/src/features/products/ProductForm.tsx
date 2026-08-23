@@ -1,18 +1,22 @@
 import type { FormEvent } from 'react'
 import { Button, Field, Input } from '../../components'
-import type { CreateProductInput } from '../../types/product'
+import type { CreateProductInput, Product } from '../../types/product'
 
 type ProductFormProps = {
+  product?: Product | null
   saving: boolean
   error: string | null
   message: string | null
+  submitLabel?: string
   onSubmit: (payload: CreateProductInput) => Promise<boolean>
 }
 
 export function ProductForm({
+  product,
   saving,
   error,
   message,
+  submitLabel = 'Cadastrar produto',
   onSubmit,
 }: ProductFormProps) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -20,27 +24,37 @@ export function ProductForm({
     const form = event.currentTarget
     const data = new FormData(form)
 
-    const created = await onSubmit({
+    const saved = await onSubmit({
       name: String(data.get('name') ?? ''),
       price: Number(data.get('price')),
+      discount: Number(data.get('discount') ?? 0),
+      stock: Math.trunc(Number(data.get('stock') ?? 0)),
       image: {
         url: String(data.get('imageUrl') ?? ''),
         name: String(data.get('imageName') ?? ''),
       },
     })
 
-    if (created) {
+    if (saved && !product) {
       form.reset()
     }
   }
 
   return (
-    <div className="panel">
+    <div className="panel product-editor">
+      {product ? (
+        <img
+          className="editor-preview"
+          src={product.image.url}
+          alt={product.name}
+        />
+      ) : null}
       <form className="form" onSubmit={(event) => void handleSubmit(event)}>
         <Field label="Nome">
           <Input
             type="text"
             name="name"
+            defaultValue={product?.name ?? ''}
             placeholder="Oliveira em vaso sage"
             required
           />
@@ -52,7 +66,31 @@ export function ProductForm({
             name="price"
             min={0}
             step="0.01"
+            defaultValue={product?.price ?? ''}
             placeholder="248"
+            required
+          />
+        </Field>
+
+        <Field label="Estoque">
+          <Input
+            type="number"
+            name="stock"
+            min={0}
+            step={1}
+            defaultValue={product?.stock ?? 12}
+            required
+          />
+        </Field>
+
+        <Field label="Desconto (%)">
+          <Input
+            type="number"
+            name="discount"
+            min={0}
+            max={100}
+            step={1}
+            defaultValue={product?.discount ?? 0}
             required
           />
         </Field>
@@ -61,6 +99,7 @@ export function ProductForm({
           <Input
             type="url"
             name="imageUrl"
+            defaultValue={product?.image.url ?? ''}
             placeholder="https://picsum.photos/seed/novo/600/800"
             required
           />
@@ -70,6 +109,7 @@ export function ProductForm({
           <Input
             type="text"
             name="imageName"
+            defaultValue={product?.image.name ?? ''}
             placeholder="oliveira-vaso-sage.jpg"
             required
           />
@@ -77,7 +117,7 @@ export function ProductForm({
 
         <div className="row">
           <Button type="submit" disabled={saving}>
-            {saving ? 'Enviando…' : 'Cadastrar produto'}
+            {saving ? 'Salvando…' : submitLabel}
           </Button>
         </div>
       </form>

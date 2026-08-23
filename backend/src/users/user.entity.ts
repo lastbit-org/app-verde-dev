@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import type { UserRole } from './roles';
 
 @Entity('users')
 export class UserEntity {
@@ -16,4 +17,7 @@ export class UserEntity {
 
   @Column({ type: 'varchar', length: 11, unique: true, nullable: true })
   cpf: string | null;
+
+  @Column({ type: 'varchar', length: 16, default: 'user' })
+  role: UserRole;
 }

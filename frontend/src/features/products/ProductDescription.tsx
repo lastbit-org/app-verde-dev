@@ -49,14 +49,16 @@ export function ProductDescription({
       ))}
 
       {details.length > 0 ? (
-        <dl className="product-copy-details">
-          {details.map((detail) => (
-            <div key={detail.label}>
-              <dt>{detail.label}</dt>
-              <dd>{detail.value}</dd>
-            </div>
-          ))}
-        </dl>
+        <table className="product-copy-details">
+          <tbody>
+            {details.map((detail) => (
+              <tr key={detail.label}>
+                <th scope="row">{detail.label}</th>
+                <td>{detail.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       ) : null}
     </article>
   )

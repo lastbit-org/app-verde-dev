@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Button, Eyebrow, Paragraph, Title } from '../components'
+import { Eyebrow, Paragraph, Title } from '../components'
 import { AccountSection } from '../features/account/AccountSection'
 import { useOrders } from '../features/orders/useOrders'
 import { UserCard } from '../features/user/UserCard'
@@ -78,11 +78,16 @@ export function UserPage() {
               error={ordersError}
             />
 
-            <div className="row user-actions">
-              <Button variant="ghost" onClick={() => void signOut()}>
+            <p className="row product-links user-actions">
+              <Link to="/products">Produtos</Link>
+              <button
+                type="button"
+                className="link-button"
+                onClick={() => void signOut()}
+              >
                 Sair
-              </Button>
-            </div>
+              </button>
+            </p>
           </>
         ) : null}
       </main>

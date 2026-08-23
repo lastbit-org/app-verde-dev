@@ -52,7 +52,7 @@ export function ProductPage() {
           </p>
           <Title as="h1">{product?.name ?? 'Produto'}</Title>
           <Paragraph variant="lead">
-            Detalhe da peça, com atalho para o carrinho e para o pagamento.
+            Detalhe da peça, com compra e pagamento ao lado.
           </Paragraph>
         </section>
 
@@ -69,7 +69,7 @@ export function ProductPage() {
               />
               <div className="product-aside">
                 <ProductBuyBox
-                  stock={12}
+                  stock={product.stock}
                   deliveryDate="2026-08-28"
                   seller="Verde Atelier"
                   onBuy={() => addAndGo('/checkout')}
@@ -87,13 +87,9 @@ export function ProductPage() {
               details={copy.details}
             />
 
-            <p className="row product-links">
-              <Link to="/cart">Ver carrinho</Link>
-              <Link to="/checkout">Ir ao pagamento</Link>
-            </p>
-
             <ProductDelete
               name={product.name}
+              editTo={`/products/${product.id}/edit`}
               removing={removing}
               error={error}
               onDelete={handleDelete}

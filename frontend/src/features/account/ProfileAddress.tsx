@@ -39,6 +39,7 @@ type ProfileAddressProps = {
   city?: string
   uf?: string
   submitLabel?: string
+  submitVariant?: 'primary' | 'secondary' | 'ghost'
 }
 
 export function ProfileAddress({
@@ -49,6 +50,7 @@ export function ProfileAddress({
   city = 'São Paulo',
   uf = 'SP',
   submitLabel = 'Salvar endereço',
+  submitVariant = 'primary',
 }: ProfileAddressProps) {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -116,7 +118,9 @@ export function ProfileAddress({
         </div>
 
         <div className="row">
-          <Button type="submit">{submitLabel}</Button>
+          <Button type="submit" variant={submitVariant}>
+            {submitLabel}
+          </Button>
         </div>
       </form>
     </div>

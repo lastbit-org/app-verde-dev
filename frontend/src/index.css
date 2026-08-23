@@ -151,7 +151,8 @@ a:hover {
   overflow-x: auto;
 }
 
-.menubar-nav a {
+.menubar-nav a,
+.menubar-nav button {
   color: var(--muted);
   text-decoration: none;
   font-size: 0.92rem;
@@ -159,8 +160,19 @@ a:hover {
   white-space: nowrap;
 }
 
+.menubar-nav button {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
 .menubar-nav a:hover,
-.menubar-nav a.is-active {
+.menubar-nav a.is-active,
+.menubar-nav button:hover {
   color: var(--leaf);
 }
 
@@ -192,6 +204,16 @@ a:hover {
   border-radius: 10px;
   color: var(--muted);
   text-decoration: none;
+}
+
+button.sidebar-item {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
 }
 
 .sidebar-item:hover,
@@ -421,6 +443,10 @@ a.btn-primary:hover {
 
   .home-notes {
     grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .confirm-facts {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
   }
 }
 
@@ -814,16 +840,51 @@ code {
   gap: 1.15rem;
 }
 
-.product-delete {
-  margin-top: 1.4rem;
-  margin-bottom: 2rem;
-  padding-top: 1.15rem;
-  padding-bottom: 0.35rem;
+.product-admin {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  padding-bottom: 1.4rem;
   border-top: 1px solid var(--line);
 }
 
-.product-delete p {
+.product-admin .product-links {
+  margin: 0;
+}
+
+.link-button {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--leaf);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  color: var(--leaf-hover);
+}
+
+.product-admin p {
   max-width: 36rem;
+}
+
+.product-editor {
+  max-width: 32rem;
+  margin-top: 1rem;
+}
+
+.editor-preview {
+  display: block;
+  width: 100%;
+  max-height: 16rem;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  background: var(--moss);
 }
 
 .payments-go {
@@ -952,29 +1013,36 @@ code {
 }
 
 .product-copy-details {
-  display: grid;
-  gap: 0.7rem;
+  width: 100%;
   margin: 1.2rem 0 0;
-  padding-top: 1rem;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.product-copy-details th,
+.product-copy-details td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
   border-top: 1px solid var(--line);
 }
 
-.product-copy-details div {
-  display: grid;
-  grid-template-columns: 7rem 1fr;
-  gap: 0.75rem;
+.product-copy-details tr:last-child th,
+.product-copy-details tr:last-child td {
+  border-bottom: 1px solid var(--line);
 }
 
-.product-copy-details dt {
-  font-size: 0.78rem;
+.product-copy-details th {
+  width: 8.5rem;
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
+  background: var(--moss);
 }
 
-.product-copy-details dd {
-  margin: 0;
+.product-copy-details td {
   color: var(--ink);
 }
 
@@ -1102,14 +1170,17 @@ code {
 }
 
 .product-list td:nth-child(1),
-.product-list td:nth-child(3) {
+.product-list td:nth-child(3),
+.product-list td:nth-child(4) {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
-.order-items {
-  white-space: normal;
-  max-width: 22rem;
+.product-list td.order-items {
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .product-list s {
@@ -1314,6 +1385,53 @@ code {
 
 .checkout .panel strong {
   color: var(--ink);
+}
+
+.checkout-pay {
+  margin-top: 1.15rem;
+}
+
+.confirm-summary {
+  margin-top: 0;
+}
+
+.confirm-facts {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+}
+
+.confirm-facts div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.confirm-facts dt {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.confirm-facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.confirm-items {
+  list-style: none;
+  margin: 1.15rem 0 0;
+  padding: 0.95rem 0 0;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 0.4rem;
+}
+
+.confirm-items li {
+  color: var(--ink);
+  font-size: 0.92rem;
 }
 
 .pix {

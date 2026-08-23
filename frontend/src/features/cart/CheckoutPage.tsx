@@ -37,7 +37,10 @@ export function CheckoutPage({
 
   return (
     <div className="checkout">
-      <ProfileAddress submitLabel="Confirmar endereço" />
+      <ProfileAddress
+        submitLabel="Confirmar endereço"
+        submitVariant="ghost"
+      />
 
       <div className="panel">
         <Title as="h4">Entrega</Title>
@@ -86,8 +89,9 @@ export function CheckoutPage({
 
         {method === 'pix' ? <PixPayment amount={amount} /> : null}
 
-        <div className="row">
+        <div className="row checkout-pay">
           <Button
+            className="btn-block"
             disabled={paying}
             onClick={() => onPay(paymentLabels[method])}
           >

@@ -15,10 +15,8 @@ export function createOrder(payload: CreateOrderInput) {
 export function createOrderInput(
   items: CreateOrderLineInput[],
   payment: string,
-  userId = 1,
 ): CreateOrderInput {
   return {
-    userId,
     payment,
     items,
   }

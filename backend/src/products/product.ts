@@ -8,6 +8,7 @@ export type Product = {
   name: string;
   price: number;
   discount: number;
+  stock: number;
   image: ProductImage;
 };
 
@@ -15,6 +16,16 @@ export type CreateProductDto = {
   name: string;
   price: number;
   image: ProductImage;
+  discount?: number;
+  stock?: number;
+};
+
+export type UpdateProductDto = {
+  name?: string;
+  price?: number;
+  image?: ProductImage;
+  discount?: number;
+  stock?: number;
 };
 
 export type ApplyDiscountDto = {

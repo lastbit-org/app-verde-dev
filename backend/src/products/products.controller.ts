@@ -11,7 +11,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import type { ApplyDiscountDto, CreateProductDto, Product } from './product';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import type {
+  ApplyDiscountDto,
+  CreateProductDto,
+  Product,
+  UpdateProductDto,
+} from './product';
 import { ProductsService } from './products.service';
 
 @Controller('products')
@@ -28,11 +35,25 @@ export class ProductsController {
     return this.productsService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'partner')
   @Post()
   create(@Body() dto: CreateProductDto): Promise<Product> {
     return this.productsService.create(dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'partner')
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateProductDto,
+  ): Promise<Product> {
+    return this.productsService.update(id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'partner')
   @Patch(':id/discount')
   applyDiscount(
     @Param('id', ParseIntPipe) id: number,
@@ -41,7 +62,8 @@ export class ProductsController {
     return this.productsService.applyDiscount(id, dto.discount);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin', 'partner')
   @Delete(':id')
   @HttpCode(204)
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {

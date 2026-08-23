@@ -39,8 +39,10 @@ export function ProductList({ products, onDiscount }: ProductListProps) {
             <th>Código</th>
             <th>Nome</th>
             <th>Preço</th>
+            <th>Estoque</th>
             <th>Arquivo</th>
             <th>Desconto</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -60,6 +62,7 @@ export function ProductList({ products, onDiscount }: ProductListProps) {
                   formatPrice(product.price)
                 )}
               </td>
+              <td>{product.stock}</td>
               <td>{product.image.name}</td>
               <td>
                 <form
@@ -79,6 +82,9 @@ export function ProductList({ products, onDiscount }: ProductListProps) {
                   <span>%</span>
                   <Button type="submit">Aplicar</Button>
                 </form>
+              </td>
+              <td>
+                <Link to={`/products/${product.id}/edit`}>Editar</Link>
               </td>
             </tr>
           ))}

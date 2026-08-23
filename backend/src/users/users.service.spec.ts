@@ -24,6 +24,7 @@ describe('UsersService', () => {
         email: 'ana@example.com',
         cpf: '12345678900',
         passwordHash: 'hashed:verde123',
+        role: 'admin',
       },
       {
         id: 2,
@@ -31,6 +32,7 @@ describe('UsersService', () => {
         email: 'bruno@example.com',
         cpf: null,
         passwordHash: 'hashed:verde123',
+        role: 'partner',
       },
     ]);
     service = new UsersService(users as never);
@@ -46,6 +48,7 @@ describe('UsersService', () => {
       name: 'Ana Silva',
       email: 'ana@example.com',
       cpf: '123.456.789-00',
+      role: 'admin',
     });
   });
 
@@ -65,6 +68,7 @@ describe('UsersService', () => {
       name: 'Carla Souza',
       email: 'carla@example.com',
       cpf: null,
+      role: 'user',
     });
     expect(await service.findAll()).toHaveLength(3);
   });
@@ -109,6 +113,7 @@ describe('UsersService', () => {
       name: 'Ana Lima',
       email: 'ana.lima@example.com',
       cpf: '987.654.321-00',
+      role: 'admin',
     });
   });
 

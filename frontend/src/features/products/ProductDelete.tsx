@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Button, Paragraph } from '../../components'
+import { canManageCatalog } from '../auth/roles'
 import { useSession } from '../auth/SessionProvider'
 
 type ProductDeleteProps = {
   name: string
+  editTo: string
   removing: boolean
   error: string | null
   onDelete: () => Promise<boolean>
@@ -11,6 +14,7 @@ type ProductDeleteProps = {
 
 export function ProductDelete({
   name,
+  editTo,
   removing,
   error,
   onDelete,
@@ -18,12 +22,12 @@ export function ProductDelete({
   const { user, loading } = useSession()
   const [confirming, setConfirming] = useState(false)
 
-  if (loading || !user) {
+  if (loading || !canManageCatalog(user?.role)) {
     return null
   }
 
   return (
-    <div className="product-delete">
+    <div className="product-admin">
       {confirming ? (
         <>
           <Paragraph>
@@ -31,10 +35,7 @@ export function ProductDelete({
             permanecem.
           </Paragraph>
           <div className="row">
-            <Button
-              disabled={removing}
-              onClick={() => void onDelete()}
-            >
+            <Button disabled={removing} onClick={() => void onDelete()}>
               {removing ? 'Excluindo…' : 'Confirmar exclusão'}
             </Button>
             <Button
@@ -47,9 +48,16 @@ export function ProductDelete({
           </div>
         </>
       ) : (
-        <Button variant="ghost" onClick={() => setConfirming(true)}>
-          Excluir peça
-        </Button>
+        <p className="row product-links">
+          <Link to={editTo}>Editar peça</Link>
+          <button
+            type="button"
+            className="link-button"
+            onClick={() => setConfirming(true)}
+          >
+            Excluir peça
+          </button>
+        </p>
       )}
       {error ? <p className="status status-error">{error}</p> : null}
     </div>

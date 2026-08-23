@@ -3,13 +3,20 @@ import { deleteProduct, getProduct } from '../../api/products'
 import { ApiError } from '../../api/client'
 import type { Product } from '../../types/product'
 
-export function useProduct(id: number) {
+export function useProduct(id: number | null) {
   const [product, setProduct] = useState<Product | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(id !== null)
   const [removing, setRemoving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (id === null) {
+      setProduct(null)
+      setLoading(false)
+      setError(null)
+      return
+    }
+
     if (!Number.isInteger(id) || id < 1) {
       setProduct(null)
       setLoading(false)
@@ -47,7 +54,7 @@ export function useProduct(id: number) {
   }, [id])
 
   const remove = useCallback(async () => {
-    if (!Number.isInteger(id) || id < 1) {
+    if (id === null || !Number.isInteger(id) || id < 1) {
       return false
     }
 
@@ -61,6 +68,8 @@ export function useProduct(id: number) {
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError('Entre para excluir esta peça.')
+      } else if (err instanceof ApiError && err.status === 403) {
+        setError('Só administradores e parceiros excluem peças.')
       } else if (err instanceof ApiError && err.status === 404) {
         setError('Esta peça já não está no catálogo.')
       } else {

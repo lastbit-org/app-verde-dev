@@ -19,7 +19,6 @@ export type OrderWithItems = Order & {
 export type CreateOrderLineDto = Omit<CreateOrderItemDto, 'orderId'>;
 
 export type CreateOrderDto = {
-  userId: number;
   payment: string;
   createdAt?: string;
   items?: CreateOrderLineDto[];

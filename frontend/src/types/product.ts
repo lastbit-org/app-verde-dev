@@ -8,11 +8,22 @@ export type Product = {
   name: string
   price: number
   discount: number
+  stock: number
   image: ProductImage
 }
 
 export type CreateProductInput = {
   name: string
   price: number
+  discount?: number
+  stock?: number
+  image: ProductImage
+}
+
+export type UpdateProductInput = {
+  name: string
+  price: number
+  discount: number
+  stock: number
   image: ProductImage
 }

@@ -10,17 +10,21 @@ type SidebarIcon =
   | 'bag'
   | 'heart'
   | 'receipt'
+  | 'plus'
+  | 'logout'
 
 type SidebarItem = {
   href: string
   label: string
   icon: SidebarIcon
+  action?: 'logout'
 }
 
 type SidebarProps = {
   items: SidebarItem[]
   side?: 'start' | 'end'
   label?: string
+  onLogout?: () => void
 }
 
 function Icon({ name }: { name: SidebarIcon }) {
@@ -108,6 +112,24 @@ function Icon({ name }: { name: SidebarIcon }) {
     )
   }
 
+  if (name === 'plus') {
+    return (
+      <svg {...common}>
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+    )
+  }
+
+  if (name === 'logout') {
+    return (
+      <svg {...common}>
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <path d="M16 17l5-5-5-5" />
+        <path d="M21 12H9" />
+      </svg>
+    )
+  }
+
   return (
     <svg {...common}>
       <circle cx="6" cy="12" r="2" />
@@ -122,14 +144,27 @@ export function Sidebar({
   items,
   side = 'start',
   label = 'Atalhos',
+  onLogout,
 }: SidebarProps) {
   return (
     <aside className={`sidebar${side === 'end' ? ' sidebar-end' : ''}`}>
       <nav className="sidebar-nav" aria-label={label}>
         {items.map((item) =>
-          item.href.startsWith('/') && !item.href.includes('#') ? (
+          item.action === 'logout' ? (
+            <button
+              key={item.label}
+              type="button"
+              className="sidebar-item"
+              aria-label={item.label}
+              title={item.label}
+              onClick={() => onLogout?.()}
+            >
+              <Icon name={item.icon} />
+            </button>
+          ) : item.href.startsWith('/') && !item.href.includes('#') ? (
             <NavLink
-              key={item.href}
+              key={`${item.href}-${item.label}`}
+              end
               className={({ isActive }) =>
                 isActive ? 'sidebar-item is-active' : 'sidebar-item'
               }
@@ -141,7 +176,7 @@ export function Sidebar({
             </NavLink>
           ) : (
             <Link
-              key={item.href}
+              key={`${item.href}-${item.label}`}
               className="sidebar-item"
               to={item.href}
               aria-label={item.label}

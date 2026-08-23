@@ -24,7 +24,8 @@ export function ProductsTablePage() {
         matches(needle, product.name) ||
         matches(needle, product.id) ||
         matches(needle, product.image.name) ||
-        matches(needle, product.price),
+        matches(needle, product.price) ||
+        matches(needle, product.stock),
     )
   }, [needle, products])
 
@@ -35,8 +36,8 @@ export function ProductsTablePage() {
           <Eyebrow>Catálogo</Eyebrow>
           <Title as="h1">Tabela de produtos</Title>
           <Paragraph variant="lead">
-            Busque por nome, código, arquivo ou preço. O nome abre a página da
-            peça.
+            Busque por nome, código, arquivo, preço ou estoque. O nome abre a
+            página da peça.
           </Paragraph>
         </section>
 
@@ -71,6 +72,7 @@ export function ProductsTablePage() {
         )}
 
         <p className="row product-links">
+          <Link to="/products/new">Cadastrar peça</Link>
           <Link to="/#galeria">Ver galeria</Link>
         </p>
       </main>

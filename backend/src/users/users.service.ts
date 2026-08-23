@@ -64,6 +64,7 @@ export class UsersService {
         email: dto.email.trim(),
         passwordHash: await hashPassword(password),
         cpf,
+        role: 'user',
       }),
     );
 
@@ -163,6 +164,7 @@ export class UsersService {
       name: row.name,
       email: row.email,
       cpf: formatCpf(row.cpf),
+      role: row.role ?? 'user',
     };
   }
 }

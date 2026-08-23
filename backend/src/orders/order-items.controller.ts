@@ -10,7 +10,11 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import type { User } from '../users/user';
 import type {
   ApplyItemDiscountDto,
   CreateOrderItemDto,
@@ -25,34 +29,49 @@ export class OrderItemsController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  findAll(@Query('orderId') orderId?: string): Promise<OrderItem[]> {
-    return this.ordersService.findAllItems(this.parseOrderId(orderId));
+  findAll(
+    @CurrentUser() user: User,
+    @Query('orderId') orderId?: string,
+  ): Promise<OrderItem[]> {
+    return this.ordersService.findAllItems(this.parseOrderId(orderId), user);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<OrderItem> {
-    return this.ordersService.findOneItem(id);
+  findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User,
+  ): Promise<OrderItem> {
+    return this.ordersService.requireOwnedItem(id, user);
   }
 
   @Post()
-  create(@Body() dto: CreateOrderItemDto): Promise<OrderItem> {
-    return this.ordersService.createItem(dto);
+  create(
+    @Body() dto: CreateOrderItemDto,
+    @CurrentUser() user: User,
+  ): Promise<OrderItem> {
+    return this.ordersService.createItem(dto, user);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateOrderItemDto,
+    @CurrentUser() user: User,
   ): Promise<OrderItem> {
-    return this.ordersService.updateItem(id, dto);
+    return this.ordersService.updateItem(id, dto, user);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles('admin')
   @Patch(':id/discount')
   applyDiscount(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ApplyItemDiscountDto,
+    @CurrentUser() user: User,
   ): Promise<OrderItem> {
-    return this.ordersService.applyItemDiscount(id, dto.discount);
+    return this.ordersService.applyItemDiscount(id, dto.discount, user);
   }
 
   private parseOrderId(orderId?: string) {

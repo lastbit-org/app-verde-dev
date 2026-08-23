@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Paragraph, Title } from '../../components'
+import { roleLabel } from '../auth/roles'
 import type { User } from '../../types/user'
 
 type UserCardProps = {
@@ -25,7 +26,9 @@ export function UserCard({ user, isDemo }: UserCardProps) {
       <div>
         <Title as="h4">{user.name}</Title>
         <Paragraph variant="muted">{user.email}</Paragraph>
-        <p className="user-meta">Conta #{user.id}</p>
+        <p className="user-meta">
+          {roleLabel(user.role)} · Conta #{user.id}
+        </p>
         {isDemo ? (
           <Paragraph variant="muted">
             Conta de exemplo.{' '}
