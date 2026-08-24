@@ -19,7 +19,7 @@ import { salePrice } from '../products/price'
 import { productCopy } from '../products/productCopy'
 import { useProducts } from '../products/useProducts'
 
-const VITRINE_PAGE_SIZE = 4
+const VITRINE_PAGE_SIZE = 16
 
 function formatPrice(price: number) {
   return price.toLocaleString('pt-BR', {
