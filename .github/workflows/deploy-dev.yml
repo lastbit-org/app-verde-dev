@@ -48,6 +48,14 @@ jobs:
           docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/api:latest"
           echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
 
+      - name: Cloud Run flags
+        run: |
+          FLAGS="--port=8080 --allow-unauthenticated --cpu-boost"
+          if [ -n "${{ vars.GCP_CLOUD_SQL_INSTANCE }}" ]; then
+            FLAGS="$FLAGS --add-cloudsql-instances=${{ vars.GCP_CLOUD_SQL_INSTANCE }}"
+          fi
+          echo "RUN_FLAGS=$FLAGS" >> "$GITHUB_ENV"
+
       - name: Deploy Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
@@ -55,4 +63,4 @@ jobs:
           image: ${{ env.IMAGE }}
           region: ${{ env.REGION }}
           service_account: ${{ env.CONTAINER_ACCOUNT }}
-          flags: --port=8080 --allow-unauthenticated
+          flags: ${{ env.RUN_FLAGS }}

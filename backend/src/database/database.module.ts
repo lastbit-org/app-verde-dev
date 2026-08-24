@@ -15,16 +15,33 @@ import { SeedService } from './seed.service';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres' as const,
-        host: config.get<string>('DATABASE_HOST') ?? 'localhost',
-        port: Number(config.get<string>('DATABASE_PORT') ?? 5432),
-        username: config.get<string>('DATABASE_USER') ?? 'verde',
-        password: config.get<string>('DATABASE_PASSWORD') ?? 'verde',
-        database: config.get<string>('DATABASE_NAME') ?? 'ecommerce',
-        autoLoadEntities: true,
-        synchronize: (config.get<string>('DATABASE_SYNC') ?? 'true') !== 'false',
-      }),
+      useFactory: (config: ConfigService) => {
+        const connectionName = config
+          .get<string>('CLOUD_SQL_CONNECTION_NAME')
+          ?.trim();
+        const common = {
+          type: 'postgres' as const,
+          username: config.get<string>('DATABASE_USER') ?? 'verde',
+          password: config.get<string>('DATABASE_PASSWORD') ?? 'verde',
+          database: config.get<string>('DATABASE_NAME') ?? 'ecommerce',
+          autoLoadEntities: true,
+          synchronize:
+            (config.get<string>('DATABASE_SYNC') ?? 'true') !== 'false',
+        };
+
+        if (connectionName) {
+          return {
+            ...common,
+            host: `/cloudsql/${connectionName}`,
+          };
+        }
+
+        return {
+          ...common,
+          host: config.get<string>('DATABASE_HOST') ?? 'localhost',
+          port: Number(config.get<string>('DATABASE_PORT') ?? 5432),
+        };
+      },
     }),
     TypeOrmModule.forFeature([
       UserEntity,
