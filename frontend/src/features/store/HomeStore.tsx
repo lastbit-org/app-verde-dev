@@ -2,6 +2,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Button,
   Eyebrow,
+  Pagination,
   Paragraph,
   Quote,
   Section,
@@ -9,6 +10,7 @@ import {
 } from '../../components'
 import { storeCategories } from '../../data/categories'
 import { products as localPhotos } from '../../data/products'
+import type { Product } from '../../types/product'
 import { useCart } from '../cart/CartProvider'
 import { CategoryGallery } from './CategoryGallery'
 import { ProductCarousel } from '../products/ProductCarousel'
@@ -16,6 +18,8 @@ import { ProductGallery } from '../products/ProductGallery'
 import { salePrice } from '../products/price'
 import { productCopy } from '../products/productCopy'
 import { useProducts } from '../products/useProducts'
+
+const VITRINE_PAGE_SIZE = 4
 
 function formatPrice(price: number) {
   return price.toLocaleString('pt-BR', {
@@ -36,15 +40,37 @@ function matchesQuery(product: { id: number; name: string }, query: string) {
   )
 }
 
+function HousePicks({ id, products }: { id: string; products: Product[] }) {
+  if (products.length === 0) {
+    return null
+  }
+
+  return (
+    <Section id={id} eyebrow="Coleção" title="Escolhas da casa">
+      <Paragraph>
+        Deslize o trilho. Cada card abre o detalhe da peça.
+      </Paragraph>
+      <ProductCarousel products={products} />
+    </Section>
+  )
+}
+
 export function HomeStore() {
   const navigate = useNavigate()
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
   const { addProduct } = useCart()
   const { products, loading, error } = useProducts()
   const featured = products[0]
   const searched = products.filter((product) => matchesQuery(product, query))
   const deals = searched.filter((product) => (product.discount ?? 0) > 0)
+  const pageCount = Math.max(1, Math.ceil(searched.length / VITRINE_PAGE_SIZE))
+  const requestedPage = Number(params.get('page')) || 1
+  const page = Math.min(Math.max(1, requestedPage), pageCount)
+  const paged = searched.slice(
+    (page - 1) * VITRINE_PAGE_SIZE,
+    page * VITRINE_PAGE_SIZE,
+  )
   const copy = productCopy(featured?.id ?? 1)
   const heroPhoto = featured
     ? { src: featured.image.url, alt: featured.name }
@@ -61,9 +87,26 @@ export function HomeStore() {
     navigate('/cart')
   }
 
+  function goToVitrinePage(next: number) {
+    const nextParams = new URLSearchParams(params)
+    if (next <= 1) {
+      nextParams.delete('page')
+    } else {
+      nextParams.set('page', String(next))
+    }
+    setParams(nextParams, { preventScrollReset: true })
+    document.getElementById('galeria')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   return (
     <>
-      <section className="hero home-hero" id="topo">
+      <section
+        className="hero home-hero"
+        id="topo"
+        style={{ backgroundImage: `url(${JSON.stringify(heroPhoto.src)})` }}
+        aria-label={heroPhoto.alt}
+      >
+        <div className="home-hero-veil" aria-hidden />
         <div className="home-hero-copy">
           <Eyebrow>Ateliê</Eyebrow>
           <Title as="h1">Plantas e vasos para uma casa mais quieta.</Title>
@@ -93,12 +136,8 @@ export function HomeStore() {
               </Link>
             )}
           </div>
-        </div>
-
-        {featured ? (
-          <Link className="home-hero-photo" to={`/product/${featured.id}`}>
-            <img src={heroPhoto.src} alt={heroPhoto.alt} />
-            <span className="home-hero-photo-meta">
+          {featured ? (
+            <p className="home-hero-photo-meta">
               <strong>{featured.name}</strong>
               <span>
                 {(featured.discount ?? 0) > 0 ? (
@@ -110,17 +149,16 @@ export function HomeStore() {
                   formatPrice(featured.price)
                 )}
               </span>
-            </span>
-          </Link>
-        ) : (
-          <div className="home-hero-photo">
-            <img src={heroPhoto.src} alt={heroPhoto.alt} />
-          </div>
-        )}
+            </p>
+          ) : null}
+        </div>
       </section>
 
-      {loading ? <p className="status">Carregando a loja…</p> : null}
-      {error ? <p className="status status-error">{error}</p> : null}
+      <div className="home-rest">
+        {loading ? <p className="status">Carregando a loja…</p> : null}
+        {error ? <p className="status status-error">{error}</p> : null}
+
+        <HousePicks id="trilho" products={products} />
 
       <Section id="categorias" eyebrow="Navegar" title="Categorias">
         <Paragraph>
@@ -153,14 +191,7 @@ export function HomeStore() {
         </Section>
       )}
 
-      {products.length > 0 ? (
-        <Section id="favoritos" eyebrow="Coleção" title="Escolhas da casa">
-          <Paragraph>
-            Deslize o trilho. Cada card abre o detalhe da peça.
-          </Paragraph>
-          <ProductCarousel products={products} />
-        </Section>
-      ) : null}
+      <HousePicks id="favoritos" products={products} />
 
       <Section id="galeria" eyebrow="Loja" title="Todas as peças">
         <Paragraph>
@@ -168,8 +199,15 @@ export function HomeStore() {
             ? `Resultados para “${query.trim()}”. O nome e a foto abrem a página do produto.`
             : 'A vitrine completa. O nome e a foto abrem a página do produto.'}
         </Paragraph>
-        {searched.length > 0 ? (
-          <ProductGallery products={searched} />
+        {paged.length > 0 ? (
+          <>
+            <ProductGallery products={paged} />
+            <Pagination
+              page={page}
+              pageCount={pageCount}
+              onPage={goToVitrinePage}
+            />
+          </>
         ) : !loading ? (
           <p className="status">
             {query.trim()
@@ -209,6 +247,7 @@ export function HomeStore() {
           como enfeite.”
         </Quote>
       </Section>
+      </div>
     </>
   )
 }
