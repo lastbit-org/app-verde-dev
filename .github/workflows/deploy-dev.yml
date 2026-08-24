@@ -2,7 +2,7 @@ name: Deploy Cloud Run (DEV)
 
 on:
   push:
-    branches: [dev]
+    branches: [run]
     paths:
       - "backend/**"
       - ".github/workflows/deploy-dev.yml"
