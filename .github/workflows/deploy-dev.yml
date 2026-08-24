@@ -25,6 +25,7 @@ jobs:
       REGION: ${{ vars.GCP_REGION }}
       REPO: ${{ vars.GCP_ARTIFACT_REPO }}
       SERVICE: ${{ vars.GCP_CLOUD_RUN_SERVICE }}
+      CONTAINER_ACCOUNT: ${{ vars.GCP_CONTAINER_ACCOUNT }}
     steps:
       - uses: actions/checkout@v4
 
@@ -53,4 +54,5 @@ jobs:
           service: ${{ env.SERVICE }}
           image: ${{ env.IMAGE }}
           region: ${{ env.REGION }}
+          service_account: ${{ env.CONTAINER_ACCOUNT }}
           flags: --port=8080 --allow-unauthenticated
