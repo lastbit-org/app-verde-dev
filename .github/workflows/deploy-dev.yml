@@ -2,7 +2,7 @@ name: Deploy Cloud Run (DEV)
 
 on:
   push:
-    branches: [dev]
+    branches: [web]
     paths:
       - "backend/**"
       - ".github/workflows/deploy-dev.yml"
@@ -51,6 +51,9 @@ jobs:
       - name: Cloud Run flags
         run: |
           FLAGS="--port=8080 --allow-unauthenticated --cpu-boost"
+          if [ -n "${CONTAINER_ACCOUNT}" ]; then
+            FLAGS="$FLAGS --service-account=${CONTAINER_ACCOUNT}"
+          fi
           if [ -n "${{ vars.GCP_CLOUD_SQL_INSTANCE }}" ]; then
             FLAGS="$FLAGS --add-cloudsql-instances=${{ vars.GCP_CLOUD_SQL_INSTANCE }}"
           fi
@@ -62,5 +65,4 @@ jobs:
           service: ${{ env.SERVICE }}
           image: ${{ env.IMAGE }}
           region: ${{ env.REGION }}
-          service_account: ${{ env.CONTAINER_ACCOUNT }}
           flags: ${{ env.RUN_FLAGS }}
