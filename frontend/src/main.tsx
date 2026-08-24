@@ -9,7 +9,7 @@ import { FavoritesProvider } from './features/favorites/FavoritesProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <SessionProvider>
         <FavoritesProvider>
           <CartProvider>
