@@ -2,7 +2,7 @@ name: GitHub Pages
 
 on:
   push:
-    branches: [dev]
+    branches: [container]
   workflow_dispatch:
 
 permissions:
