@@ -61,12 +61,18 @@ jobs:
               missing=1
             fi
           done
+          echo "Deploy target project=${PROJECT_ID} region=${REGION} service=${SERVICE}"
           exit "$missing"
 
       - uses: google-github-actions/auth@v2
         with:
+          project_id: ${{ env.PROJECT_ID }}
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_WIF_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
 
       - name: Cloud Run flags
         id: flags
@@ -83,6 +89,7 @@ jobs:
       - name: Deploy Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
+          project_id: ${{ env.PROJECT_ID }}
           service: ${{ env.SERVICE }}
           image: ${{ env.IMAGE }}
           region: ${{ env.REGION }}
@@ -95,6 +102,7 @@ jobs:
     timeout-minutes: 20
     environment: dev
     env:
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
       REGION: ${{ vars.GCP_REGION }}
       SERVICE: ${{ vars.GCP_CLOUD_RUN_WEB_SERVICE }}
       CONTAINER_ACCOUNT: ${{ vars.GCP_CONTAINER_ACCOUNT }}
@@ -114,19 +122,26 @@ jobs:
         if: steps.gate.outputs.skip != 'true'
         run: |
           missing=0
-          for name in REGION SERVICE IMAGE; do
+          for name in PROJECT_ID REGION SERVICE IMAGE; do
             if [ -z "${!name}" ]; then
               echo "::error::$name is empty"
               missing=1
             fi
           done
+          echo "Deploy target project=${PROJECT_ID} region=${REGION} service=${SERVICE}"
           exit "$missing"
 
       - uses: google-github-actions/auth@v2
         if: steps.gate.outputs.skip != 'true'
         with:
+          project_id: ${{ env.PROJECT_ID }}
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_WIF_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+        if: steps.gate.outputs.skip != 'true'
+        with:
+          project_id: ${{ env.PROJECT_ID }}
 
       - name: Cloud Run flags
         if: steps.gate.outputs.skip != 'true'
@@ -142,6 +157,7 @@ jobs:
         if: steps.gate.outputs.skip != 'true'
         uses: google-github-actions/deploy-cloudrun@v2
         with:
+          project_id: ${{ env.PROJECT_ID }}
           service: ${{ env.SERVICE }}
           image: ${{ env.IMAGE }}
           region: ${{ env.REGION }}
