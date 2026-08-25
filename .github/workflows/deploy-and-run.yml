@@ -1,0 +1,148 @@
+name: Deploy Cloud Run (DEV)
+
+on:
+  push:
+    branches: [run]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/deploy-and-run.yml"
+      - ".github/workflows/reusable-build-push.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  build-api:
+    name: Build & push API
+    uses: ./.github/workflows/reusable-build-push.yml
+    secrets: inherit
+    with:
+      context: backend
+      image_name: api
+
+  build-web:
+    name: Build & push Web
+    uses: ./.github/workflows/reusable-build-push.yml
+    secrets: inherit
+    with:
+      context: frontend
+      image_name: web
+      vite_base: ${{ vars.VITE_BASE != '' && vars.VITE_BASE || '/' }}
+      vite_api_url: ${{ vars.VITE_API_URL }}
+
+  deploy-api:
+    name: Deploy API (Cloud Run)
+    needs: build-api
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: dev
+    env:
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      REGION: ${{ vars.GCP_REGION }}
+      REPO: ${{ vars.GCP_ARTIFACT_REPO }}
+      SERVICE: ${{ vars.GCP_CLOUD_RUN_SERVICE }}
+      CONTAINER_ACCOUNT: ${{ vars.GCP_CONTAINER_ACCOUNT }}
+      CLOUD_SQL_INSTANCE: ${{ vars.GCP_CLOUD_SQL_INSTANCE }}
+      IMAGE: ${{ needs.build-api.outputs.image }}
+    steps:
+      - name: Validate deploy vars
+        run: |
+          missing=0
+          for name in PROJECT_ID REGION REPO SERVICE IMAGE; do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is empty"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_WIF_SERVICE_ACCOUNT }}
+
+      - name: Cloud Run flags
+        id: flags
+        run: |
+          FLAGS="--port=8080 --allow-unauthenticated --cpu-boost"
+          if [ -n "${CONTAINER_ACCOUNT}" ]; then
+            FLAGS="$FLAGS --service-account=${CONTAINER_ACCOUNT}"
+          fi
+          if [ -n "${CLOUD_SQL_INSTANCE}" ]; then
+            FLAGS="$FLAGS --add-cloudsql-instances=${CLOUD_SQL_INSTANCE}"
+          fi
+          echo "value=${FLAGS}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          image: ${{ env.IMAGE }}
+          region: ${{ env.REGION }}
+          flags: ${{ steps.flags.outputs.value }}
+
+  deploy-web:
+    name: Deploy Web (Cloud Run)
+    needs: build-web
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: dev
+    env:
+      REGION: ${{ vars.GCP_REGION }}
+      SERVICE: ${{ vars.GCP_CLOUD_RUN_WEB_SERVICE }}
+      CONTAINER_ACCOUNT: ${{ vars.GCP_CONTAINER_ACCOUNT }}
+      IMAGE: ${{ needs.build-web.outputs.image }}
+    steps:
+      - name: Skip when web service is unset
+        id: gate
+        run: |
+          if [ -z "${SERVICE}" ]; then
+            echo "GCP_CLOUD_RUN_WEB_SERVICE not set — image was pushed; skipping Cloud Run deploy."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate deploy vars
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          missing=0
+          for name in REGION SERVICE IMAGE; do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is empty"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - uses: google-github-actions/auth@v2
+        if: steps.gate.outputs.skip != 'true'
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_WIF_SERVICE_ACCOUNT }}
+
+      - name: Cloud Run flags
+        if: steps.gate.outputs.skip != 'true'
+        id: flags
+        run: |
+          FLAGS="--port=8080 --allow-unauthenticated --cpu-boost"
+          if [ -n "${CONTAINER_ACCOUNT}" ]; then
+            FLAGS="$FLAGS --service-account=${CONTAINER_ACCOUNT}"
+          fi
+          echo "value=${FLAGS}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy Cloud Run
+        if: steps.gate.outputs.skip != 'true'
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          image: ${{ env.IMAGE }}
+          region: ${{ env.REGION }}
+          flags: ${{ steps.flags.outputs.value }}

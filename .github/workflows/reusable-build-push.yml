@@ -1,0 +1,95 @@
+name: Reusable — Build & push image
+
+on:
+  workflow_call:
+    inputs:
+      context:
+        description: Build context directory (e.g. backend, frontend)
+        required: true
+        type: string
+      image_name:
+        description: Artifact Registry image name (e.g. api, web)
+        required: true
+        type: string
+      dockerfile:
+        description: Dockerfile path relative to context
+        required: false
+        type: string
+        default: Dockerfile
+      vite_base:
+        description: Vite public base path (frontend only)
+        required: false
+        type: string
+        default: /
+      vite_api_url:
+        description: Vite API URL baked at build time (frontend only)
+        required: false
+        type: string
+        default: ""
+    outputs:
+      image:
+        description: Fully qualified image URI with SHA tag
+        value: ${{ jobs.build.outputs.image }}
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: dev
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    env:
+      PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      REGION: ${{ vars.GCP_REGION }}
+      REPO: ${{ vars.GCP_ARTIFACT_REPO }}
+    steps:
+      - name: Validate GCP vars
+        run: |
+          missing=0
+          for name in PROJECT_ID REGION REPO; do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is empty (set GitHub Environment/Repository variable)"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_WIF_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Docker auth (Artifact Registry)
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Image metadata
+        id: meta
+        run: |
+          IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${{ inputs.image_name }}:${GITHUB_SHA}"
+          echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
+          echo "Building ${IMAGE}"
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.context }}/${{ inputs.dockerfile }}
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}
+            ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ inputs.image_name }}:latest
+          build-args: |
+            VITE_BASE=${{ inputs.vite_base }}
+            VITE_API_URL=${{ inputs.vite_api_url }}
+          cache-from: type=gha,scope=${{ inputs.image_name }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.image_name }}

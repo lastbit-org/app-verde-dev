@@ -10,4 +10,4 @@ services:
     container_name: ecommerce-frontend
     restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT:-8080}:80"
+      - "${FRONTEND_PORT:-8080}:8080"
