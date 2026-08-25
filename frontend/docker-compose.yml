@@ -1,0 +1,13 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_BASE: ${VITE_BASE:-/}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    image: verde-frontend:local
+    container_name: ecommerce-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
