@@ -50,18 +50,31 @@ jobs:
       SERVICE: ${{ vars.GCP_CLOUD_RUN_SERVICE }}
       CONTAINER_ACCOUNT: ${{ vars.GCP_CONTAINER_ACCOUNT }}
       CLOUD_SQL_INSTANCE: ${{ vars.GCP_CLOUD_SQL_INSTANCE }}
+      # Prefer explicit connection name; fall back to the Cloud SQL instance attachment id.
+      CLOUD_SQL_CONNECTION_NAME: ${{ vars.CLOUD_SQL_CONNECTION_NAME || vars.GCP_CLOUD_SQL_INSTANCE }}
+      DATABASE_USER: ${{ vars.DATABASE_USER }}
+      DATABASE_NAME: ${{ vars.DATABASE_NAME }}
+      DATABASE_SYNC: ${{ vars.DATABASE_SYNC }}
+      CORS_ORIGIN: ${{ vars.CORS_ORIGIN }}
+      NODE_ENV: ${{ vars.NODE_ENV }}
+      COOKIE_SECURE: ${{ vars.COOKIE_SECURE }}
+      ALLOW_SEED: ${{ vars.ALLOW_SEED }}
+      # Secret Manager refs only (e.g. jwt-secret:latest) — never the secret value.
+      SM_JWT_SECRET: ${{ vars.SM_JWT_SECRET }}
+      SM_DATABASE_PASSWORD: ${{ vars.SM_DATABASE_PASSWORD }}
       IMAGE: ${{ needs.build-api.outputs.image }}
     steps:
       - name: Validate deploy vars
         run: |
           missing=0
-          for name in PROJECT_ID REGION REPO SERVICE IMAGE; do
+          for name in PROJECT_ID REGION REPO SERVICE IMAGE CLOUD_SQL_CONNECTION_NAME DATABASE_USER DATABASE_NAME SM_JWT_SECRET SM_DATABASE_PASSWORD; do
             if [ -z "${!name}" ]; then
-              echo "::error::$name is empty"
+              echo "::error::$name is empty (set on GitHub Environment dev)"
               missing=1
             fi
           done
           echo "Deploy target project=${PROJECT_ID} region=${REGION} service=${SERVICE}"
+          echo "Cloud SQL=${CLOUD_SQL_CONNECTION_NAME}"
           exit "$missing"
 
       - uses: google-github-actions/auth@v2
@@ -74,7 +87,7 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: Cloud Run flags
+      - name: Cloud Run flags and env
         id: flags
         run: |
           FLAGS="--port=8080 --allow-unauthenticated --cpu-boost"
@@ -83,8 +96,27 @@ jobs:
           fi
           if [ -n "${CLOUD_SQL_INSTANCE}" ]; then
             FLAGS="$FLAGS --add-cloudsql-instances=${CLOUD_SQL_INSTANCE}"
+          elif [ -n "${CLOUD_SQL_CONNECTION_NAME}" ]; then
+            FLAGS="$FLAGS --add-cloudsql-instances=${CLOUD_SQL_CONNECTION_NAME}"
           fi
           echo "value=${FLAGS}" >> "$GITHUB_OUTPUT"
+
+          ENV_VARS="CLOUD_SQL_CONNECTION_NAME=${CLOUD_SQL_CONNECTION_NAME}"
+          ENV_VARS="${ENV_VARS},DATABASE_USER=${DATABASE_USER}"
+          ENV_VARS="${ENV_VARS},DATABASE_NAME=${DATABASE_NAME}"
+          ENV_VARS="${ENV_VARS},NODE_ENV=${NODE_ENV:-production}"
+          ENV_VARS="${ENV_VARS},COOKIE_SECURE=${COOKIE_SECURE:-true}"
+          ENV_VARS="${ENV_VARS},DATABASE_SYNC=${DATABASE_SYNC:-true}"
+          if [ -n "${CORS_ORIGIN}" ]; then
+            ENV_VARS="${ENV_VARS},CORS_ORIGIN=${CORS_ORIGIN}"
+          fi
+          if [ -n "${ALLOW_SEED}" ]; then
+            ENV_VARS="${ENV_VARS},ALLOW_SEED=${ALLOW_SEED}"
+          fi
+          echo "env_vars=${ENV_VARS}" >> "$GITHUB_OUTPUT"
+
+          SECRETS="JWT_SECRET=${SM_JWT_SECRET},DATABASE_PASSWORD=${SM_DATABASE_PASSWORD}"
+          echo "secrets=${SECRETS}" >> "$GITHUB_OUTPUT"
 
       - name: Deploy Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
@@ -94,6 +126,8 @@ jobs:
           image: ${{ env.IMAGE }}
           region: ${{ env.REGION }}
           flags: ${{ steps.flags.outputs.value }}
+          env_vars: ${{ steps.flags.outputs.env_vars }}
+          secrets: ${{ steps.flags.outputs.secrets }}
 
   deploy-web:
     name: Deploy Web (Cloud Run)
