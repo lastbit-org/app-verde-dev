@@ -338,3 +338,5 @@ Canary não duplica SQL. Duplica revisão Cloud Run (barato). SQL HA em PRD é o
 3. Só então projeto `verde-dev` e fase 1.
 
 Pub/sub, Armor avançado e canary ficam no backlog até DEV estar chato de tão previsível.
+
+.
